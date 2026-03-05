@@ -70,7 +70,7 @@ function HeroModal() {
       <Modal.Content boxShadow="$in" bgColor="$material">
         <div className="flex flex-row gap-8 p-2 w-full">
           <Frame bgColor="$material" boxShadow="$out">
-            <Frame h="100%" bgColor="white" boxShadow="$in" padding="$8">
+            <Frame h="100%" bgColor="teal" boxShadow="$in" padding="$8">
               <Image
                 src="/logo-main.png"
                 width={180}
@@ -80,7 +80,7 @@ function HeroModal() {
             </Frame>
           </Frame>
           <div className="flex-1 place-content-center grid">
-            <div className="font-bold text-7xl">Bundy Campus</div>
+            <div className="font-bold text-7xl">HackSMC</div>
             <div className="mt-8 text-4xl text-center">May 9–10, 2026</div>
           </div>
         </div>
