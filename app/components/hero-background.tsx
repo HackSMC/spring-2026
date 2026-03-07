@@ -245,7 +245,14 @@ function drawSun(
   }
 
   // Bright highlight spot
-  drawPixelRect(ctx, cx - PIXEL * 2, cy - PIXEL * 2, PIXEL * 2, PIXEL * 2, "#ffffaa");
+  drawPixelRect(
+    ctx,
+    cx - PIXEL * 2,
+    cy - PIXEL * 2,
+    PIXEL * 2,
+    PIXEL * 2,
+    "#ffffaa",
+  );
 }
 
 function drawStars(
@@ -290,9 +297,23 @@ function drawSmallTree(
   y: number,
 ): void {
   // 1px trunk, 3px tall
-  drawPixelRect(ctx, x, y - PIXEL * 3, PIXEL, PIXEL * 3, PALETTE.streetTreeTrunk);
+  drawPixelRect(
+    ctx,
+    x,
+    y - PIXEL * 3,
+    PIXEL,
+    PIXEL * 3,
+    PALETTE.streetTreeTrunk,
+  );
   // 3x2 canopy
-  drawPixelRect(ctx, x - PIXEL, y - PIXEL * 5, PIXEL * 3, PIXEL * 2, PALETTE.streetTreeCanopy);
+  drawPixelRect(
+    ctx,
+    x - PIXEL,
+    y - PIXEL * 5,
+    PIXEL * 3,
+    PIXEL * 2,
+    PALETTE.streetTreeCanopy,
+  );
   // Light highlight
   drawPixelRect(ctx, x, y - PIXEL * 5, PIXEL, PIXEL, PALETTE.streetTreeLight);
 }
@@ -308,14 +329,17 @@ function drawCoastalBuildings(
   const oceanH = H - horizonY;
   if (oceanH <= 0) return;
 
-  const roadPositions = [0.38, 0.60, 0.80];
+  const roadPositions = [0.38, 0.6, 0.8];
 
   // Helper: compute smooth edge + sandWidth for a given y
   function getSmoothEdge(y: number) {
     const rawBase = beachBaseX(y, W, H, horizonY);
     const progress = (y - horizonY) / oceanH;
     const startOffset = 0.2;
-    const adjustedProgress = Math.max(0, (progress - startOffset) / (1 - startOffset));
+    const adjustedProgress = Math.max(
+      0,
+      (progress - startOffset) / (1 - startOffset),
+    );
     const shift = Math.pow(adjustedProgress, 2) * W * 0.4;
     const smoothEdge = snap(rawBase - shift);
     const sandWidth = W - smoothEdge;
@@ -336,19 +360,29 @@ function drawCoastalBuildings(
         const roadW = snap(Math.max(PIXEL * 4, PIXEL * 5 * (1 + yPct * 0.5)));
         drawPixelRect(ctx, roadX, y, roadW, PIXEL, PALETTE.road);
         if (Math.floor(y / (PIXEL * 3)) % 2 === 0) {
-          drawPixelRect(ctx, roadX + Math.floor(roadW / 2), y, PIXEL, PIXEL, PALETTE.roadLine);
+          drawPixelRect(
+            ctx,
+            roadX + Math.floor(roadW / 2),
+            y,
+            PIXEL,
+            PIXEL,
+            PALETTE.roadLine,
+          );
         }
       }
 
       // Street trees along roads (every ~14 pixels along Y)
-      if (Math.floor(y / (PIXEL * 14)) % 1 === 0 && (y % (PIXEL * 14)) === 0) {
+      if (Math.floor(y / (PIXEL * 14)) % 1 === 0 && y % (PIXEL * 14) === 0) {
         for (let ri = 0; ri < roadPositions.length; ri++) {
           const rPos = roadPositions[ri];
           const roadX = snap(smoothEdge + sandWidth * rPos);
           if (roadX < smoothEdge + PIXEL * 4 || roadX > W - PIXEL * 6) continue;
           const roadW = snap(Math.max(PIXEL * 4, PIXEL * 5 * (1 + yPct * 0.5)));
           // Alternate which side of the road the tree is on
-          const side = ((Math.floor(y / (PIXEL * 14)) + ri) % 2 === 0) ? -PIXEL * 2 : roadW + PIXEL;
+          const side =
+            (Math.floor(y / (PIXEL * 14)) + ri) % 2 === 0
+              ? -PIXEL * 2
+              : roadW + PIXEL;
           drawSmallTree(ctx, roadX + side, y);
         }
       }
@@ -372,10 +406,19 @@ function drawCoastalBuildings(
 
     // Horizontal cross street — spans from first road to screen edge
     const crossInfo = getSmoothEdge(blockTopY);
-    const crossRoadX = snap(crossInfo.smoothEdge + crossInfo.sandWidth * roadPositions[0]);
+    const crossRoadX = snap(
+      crossInfo.smoothEdge + crossInfo.sandWidth * roadPositions[0],
+    );
     const crossW = snap(Math.max(PIXEL * 2, PIXEL * 2 * depthScale));
     if (!lightsOnly) {
-      drawPixelRect(ctx, crossRoadX, blockTopY, W - crossRoadX, crossW, PALETTE.road);
+      drawPixelRect(
+        ctx,
+        crossRoadX,
+        blockTopY,
+        W - crossRoadX,
+        crossW,
+        PALETTE.road,
+      );
       // Center dashes on horizontal cross street (2px wide strips with 3px gaps)
       const dashY = snap(blockTopY + Math.floor(crossW / 2));
       for (let dx = crossRoadX; dx < W; dx += PIXEL * 5) {
@@ -401,7 +444,8 @@ function drawCoastalBuildings(
     const columns: { startX: number; endX: number }[] = [];
     for (let i = 0; i < roadXs.length; i++) {
       const colStart = roadXs[i] + roadWs[i] + PIXEL;
-      const colEnd = i < roadXs.length - 1 ? roadXs[i + 1] - PIXEL : W - PIXEL * 2;
+      const colEnd =
+        i < roadXs.length - 1 ? roadXs[i + 1] - PIXEL : W - PIXEL * 2;
       if (colEnd - colStart >= PIXEL * 8) {
         columns.push({ startX: colStart, endX: colEnd });
       }
@@ -409,16 +453,15 @@ function drawCoastalBuildings(
 
     // Two rows per block, buildings fill each column
     for (let row = 0; row < 2; row++) {
-      const baseY = row === 0
-        ? blockTopY + crossW + halfBlock - PIXEL * 2
-        : blockBotY;
+      const baseY =
+        row === 0 ? blockTopY + crossW + halfBlock - PIXEL * 2 : blockBotY;
 
       for (const col of columns) {
         let cursor = col.startX;
         let bIdx = 0;
         while (cursor < col.endX) {
           let seed = buildingIdx * 137 + block * 53 + bIdx * 71 + row * 999;
-          seed = ((seed >>> 0) ^ ((seed >>> 16) | 0)) * 2654435769 >>> 0;
+          seed = (((seed >>> 0) ^ ((seed >>> 16) | 0)) * 2654435769) >>> 0;
           const personality = seed % 10;
           bIdx++;
 
@@ -455,39 +498,74 @@ function drawCoastalBuildings(
 
           if (!lightsOnly) {
             // Draw building body
-            const color = buildingIdx % 2 === 0 ? PALETTE.buildingSilhouette : PALETTE.buildingDark;
+            const color =
+              buildingIdx % 2 === 0
+                ? PALETTE.buildingSilhouette
+                : PALETTE.buildingDark;
             drawPixelRect(ctx, cx, buildingTop, bw, bh - jitterY, color);
 
             // All windows as dark dots (daytime look)
-            for (let wy = buildingTop + winStep; wy < baseY - winStep; wy += winStep) {
+            for (
+              let wy = buildingTop + winStep;
+              wy < baseY - winStep;
+              wy += winStep
+            ) {
               for (let wx = winSize; wx < bw - winSize; wx += winStep) {
-                drawPixelRect(ctx, cx + wx, wy, winSize, winSize, PALETTE.buildingWindowDim);
+                drawPixelRect(
+                  ctx,
+                  cx + wx,
+                  wy,
+                  winSize,
+                  winSize,
+                  PALETTE.buildingWindowDim,
+                );
               }
             }
           } else {
             // lightsOnly — draw glowing windows and beacons on top of overlay
-            const windowColors = personality <= 3
-              ? [PALETTE.buildingWindow, PALETTE.buildingWindowDim]
-              : personality <= 6
-                ? [PALETTE.buildingWindowWarm, PALETTE.buildingWindowDim]
-                : [PALETTE.buildingWindowCool, PALETTE.buildingWindowDim];
+            const windowColors =
+              personality <= 3
+                ? [PALETTE.buildingWindow, PALETTE.buildingWindowDim]
+                : personality <= 6
+                  ? [PALETTE.buildingWindowWarm, PALETTE.buildingWindowDim]
+                  : [PALETTE.buildingWindowCool, PALETTE.buildingWindowDim];
 
-            const doesFlicker = (seed % 20) === 0;
-            const flickerSpeed = 0.01 + ((seed % 13) * 0.005);
+            const doesFlicker = seed % 20 === 0;
+            const flickerSpeed = 0.01 + (seed % 13) * 0.005;
             const flickerPhase = (seed % 97) * 0.37;
 
-            for (let wy = buildingTop + winStep; wy < baseY - winStep; wy += winStep) {
+            for (
+              let wy = buildingTop + winStep;
+              wy < baseY - winStep;
+              wy += winStep
+            ) {
               for (let wx = winSize; wx < bw - winSize; wx += winStep) {
                 const windowIdx = wy * 3 + wx;
                 if (doesFlicker) {
-                  const flicker = Math.sin(t * flickerSpeed + flickerPhase + windowIdx * 1.1);
+                  const flicker = Math.sin(
+                    t * flickerSpeed + flickerPhase + windowIdx * 1.1,
+                  );
                   if (flicker > 0.4) {
-                    drawPixelRect(ctx, cx + wx, wy, winSize, winSize, windowColors[0]);
+                    drawPixelRect(
+                      ctx,
+                      cx + wx,
+                      wy,
+                      winSize,
+                      winSize,
+                      windowColors[0],
+                    );
                   }
                 } else {
-                  const on = ((windowIdx * 137 + buildingIdx * 53) % 10);
+                  const on = (windowIdx * 137 + buildingIdx * 53) % 10;
                   if (on < 4) {
-                    drawPixelRect(ctx, cx + wx, wy, winSize, winSize, windowColors[0]);
+                    drawPixelRect(
+                      ctx,
+                      cx + wx,
+                      wy,
+                      winSize,
+                      winSize,
+                      windowColors[0],
+                    );
                   }
                 }
               }
@@ -496,8 +574,11 @@ function drawCoastalBuildings(
             if (isTower) {
               const beaconOn = Math.sin(t * 0.05 + buildingIdx * 3.1) > 0;
               drawPixelRect(
-                ctx, cx + Math.floor(bw / 2) - PIXEL / 2, buildingTop - PIXEL,
-                PIXEL, PIXEL,
+                ctx,
+                cx + Math.floor(bw / 2) - PIXEL / 2,
+                buildingTop - PIXEL,
+                PIXEL,
+                PIXEL,
                 beaconOn ? PALETTE.rooftopBeacon : PALETTE.rooftopBeaconDim,
               );
             }
@@ -622,8 +703,7 @@ function beachEdgeX(y: number, W: number, H: number, horizonY: number): number {
   const tc = (y - horizonY) / (H - horizonY);
   const amp = W * 0.018 * (0.3 + tc * 0.7);
   const wiggle =
-    Math.sin(y * 0.018) * amp +
-    Math.sin(y * 0.045 + 1.2) * amp * 0.5;
+    Math.sin(y * 0.018) * amp + Math.sin(y * 0.045 + 1.2) * amp * 0.5;
   return base + wiggle;
 }
 
@@ -648,13 +728,27 @@ function drawBeach(
     // Grass (urban area, right of the first road)
     const sandWidth = W - edgeX;
     const grassStartX = snap(edgeX + sandWidth * 0.37);
-    drawPixelRect(ctx, grassStartX, y, W - grassStartX, PIXEL, PALETTE.grassPatch);
+    drawPixelRect(
+      ctx,
+      grassStartX,
+      y,
+      W - grassStartX,
+      PIXEL,
+      PALETTE.grassPatch,
+    );
     // Dry sand (beach strip, left of the first road)
     drawPixelRect(ctx, edgeX, y, grassStartX - edgeX, PIXEL, PALETTE.sand);
     // Wet sand
     drawPixelRect(ctx, edgeX, y, PIXEL * 2, PIXEL, PALETTE.wetSand);
     // Shallows
-    drawPixelRect(ctx, edgeX - PIXEL * 4, y, PIXEL * 4, PIXEL, PALETTE.shallows);
+    drawPixelRect(
+      ctx,
+      edgeX - PIXEL * 4,
+      y,
+      PIXEL * 4,
+      PIXEL,
+      PALETTE.shallows,
+    );
     // Ocean bleed
     drawPixelRect(ctx, edgeX - PIXEL * 8, y, PIXEL * 4, PIXEL, PALETTE.ocean);
   }
@@ -680,22 +774,53 @@ function drawPier(
   // Support pylons below deck
   for (let x = pierLeftX; x <= pierRightX; x += PIXEL * 10) {
     const pylonBottom = snap(pierYBase + PIXEL * 4);
-    drawPixelRect(ctx, x, deckY + deckH, PIXEL, pylonBottom - (deckY + deckH), PALETTE.pierPylon);
-    drawPixelRect(ctx, x + PIXEL, deckY + deckH, PIXEL, pylonBottom - (deckY + deckH), PALETTE.pierPylon);
+    drawPixelRect(
+      ctx,
+      x,
+      deckY + deckH,
+      PIXEL,
+      pylonBottom - (deckY + deckH),
+      PALETTE.pierPylon,
+    );
+    drawPixelRect(
+      ctx,
+      x + PIXEL,
+      deckY + deckH,
+      PIXEL,
+      pylonBottom - (deckY + deckH),
+      PALETTE.pierPylon,
+    );
   }
 
   // Deck surface
   for (let x = pierLeftX; x <= pierRightX; x += PIXEL) {
-    const color = Math.floor((x - pierLeftX) / PIXEL) % 3 === 0 ? PALETTE.pierPlank : PALETTE.pierDeck;
+    const color =
+      Math.floor((x - pierLeftX) / PIXEL) % 3 === 0
+        ? PALETTE.pierPlank
+        : PALETTE.pierDeck;
     drawPixelRect(ctx, x, deckY, PIXEL, deckH, color);
   }
 
   // Railing
-  drawPixelRect(ctx, pierLeftX, deckY - PIXEL, pierRightX - pierLeftX, PIXEL, PALETTE.pierRail);
+  drawPixelRect(
+    ctx,
+    pierLeftX,
+    deckY - PIXEL,
+    pierRightX - pierLeftX,
+    PIXEL,
+    PALETTE.pierRail,
+  );
 
   // Railing posts
   for (let x = pierLeftX; x <= pierRightX; x += PIXEL * 8) {
-    drawPixelRect(ctx, x, deckY - PIXEL * 2, PIXEL, PIXEL * 2, PALETTE.pierRail);
+    drawPixelRect(
+      ctx,
+      x,
+      deckY - PIXEL * 2,
+      PIXEL,
+      PIXEL * 2,
+      PALETTE.pierRail,
+    );
   }
 
   return { deckY, pierLeftX, pierRightX };
@@ -711,10 +836,31 @@ function drawFerrisWheel(
   const hubY = deckY - radius - PIXEL * 4;
 
   // A-frame support base
-  drawPixelRect(ctx, centerX - PIXEL * 3, hubY + radius, PIXEL, deckY - (hubY + radius), PALETTE.ferrisFrame);
-  drawPixelRect(ctx, centerX + PIXEL * 2, hubY + radius, PIXEL, deckY - (hubY + radius), PALETTE.ferrisFrame);
+  drawPixelRect(
+    ctx,
+    centerX - PIXEL * 3,
+    hubY + radius,
+    PIXEL,
+    deckY - (hubY + radius),
+    PALETTE.ferrisFrame,
+  );
+  drawPixelRect(
+    ctx,
+    centerX + PIXEL * 2,
+    hubY + radius,
+    PIXEL,
+    deckY - (hubY + radius),
+    PALETTE.ferrisFrame,
+  );
   // Cross brace
-  drawPixelRect(ctx, centerX - PIXEL * 2, hubY + radius - PIXEL * 2, PIXEL * 4, PIXEL, PALETTE.ferrisFrame);
+  drawPixelRect(
+    ctx,
+    centerX - PIXEL * 2,
+    hubY + radius - PIXEL * 2,
+    PIXEL * 4,
+    PIXEL,
+    PALETTE.ferrisFrame,
+  );
 
   // Outer rim — draw pixel dots around the circle
   for (let a = 0; a < Math.PI * 2; a += 0.12) {
@@ -738,12 +884,27 @@ function drawFerrisWheel(
     }
 
     // Gondola car at tip — alternating red/blue, always hanging down
-    const gondolaColor = i % 2 === 0 ? PALETTE.ferrisGondola : PALETTE.ferrisGondola2;
-    drawPixelRect(ctx, snap(endX) - PIXEL, snap(endY) + PIXEL, PIXEL * 3, PIXEL * 2, gondolaColor);
+    const gondolaColor =
+      i % 2 === 0 ? PALETTE.ferrisGondola : PALETTE.ferrisGondola2;
+    drawPixelRect(
+      ctx,
+      snap(endX) - PIXEL,
+      snap(endY) + PIXEL,
+      PIXEL * 3,
+      PIXEL * 2,
+      gondolaColor,
+    );
   }
 
   // Center hub
-  drawPixelRect(ctx, centerX - PIXEL, hubY - PIXEL, PIXEL * 2, PIXEL * 2, PALETTE.ferrisHub);
+  drawPixelRect(
+    ctx,
+    centerX - PIXEL,
+    hubY - PIXEL,
+    PIXEL * 2,
+    PIXEL * 2,
+    PALETTE.ferrisHub,
+  );
 }
 
 function drawBoats(
@@ -758,14 +919,34 @@ function drawBoats(
 
   // --- SAILBOATS ---
   const sailboats = [
-    { xPct: 0.02, yPct: 0.10, bobSpeed: 0.03, sailColor: PALETTE.boatSail, small: false },
-    { xPct: 0.08, yPct: 0.30, bobSpeed: 0.025, sailColor: PALETTE.umbrellaRed, small: false },
-    { xPct: 0.62, yPct: 0.05, bobSpeed: 0.02, sailColor: PALETTE.boatSail, small: true },
+    {
+      xPct: 0.02,
+      yPct: 0.1,
+      bobSpeed: 0.03,
+      sailColor: PALETTE.boatSail,
+      small: false,
+    },
+    {
+      xPct: 0.08,
+      yPct: 0.3,
+      bobSpeed: 0.025,
+      sailColor: PALETTE.umbrellaRed,
+      small: false,
+    },
+    {
+      xPct: 0.62,
+      yPct: 0.05,
+      bobSpeed: 0.02,
+      sailColor: PALETTE.boatSail,
+      small: true,
+    },
   ];
 
   sailboats.forEach((boat, i) => {
     const bx = snap(W * boat.xPct);
-    const by = snap(horizonY + oceanH * boat.yPct + Math.sin(t * boat.bobSpeed + i * 1.7) * P);
+    const by = snap(
+      horizonY + oceanH * boat.yPct + Math.sin(t * boat.bobSpeed + i * 1.7) * P,
+    );
     const edgeX = getActualBeachEdge(by, W, H, horizonY);
 
     if (boat.small) {
@@ -776,7 +957,14 @@ function drawBoats(
       drawPixelRect(ctx, bx, by + s * 2, s * 9, s, PALETTE.boatHull);
       drawPixelRect(ctx, bx + s, by + s * 3, s * 7, s, PALETTE.boatHull);
       drawPixelRect(ctx, bx + s * 2, by + s, s * 5, s, PALETTE.pierDeck);
-      drawPixelRect(ctx, bx + s * 4, by - s * 4, Math.max(P, s), s * 5, PALETTE.pierPylon);
+      drawPixelRect(
+        ctx,
+        bx + s * 4,
+        by - s * 4,
+        Math.max(P, s),
+        s * 5,
+        PALETTE.pierPylon,
+      );
       drawPixelRect(ctx, bx + s * 5, by - s * 3, s, s, boat.sailColor);
       drawPixelRect(ctx, bx + s * 5, by - s * 2, s * 2, s, boat.sailColor);
       drawPixelRect(ctx, bx + s * 5, by - s, s * 2, s, boat.sailColor);
@@ -784,10 +972,31 @@ function drawBoats(
     } else {
       // Full-size boat
       if (bx + P * 18 > edgeX) return;
-      drawPixelRect(ctx, bx + P * 2, by + P * 2, P * 14, P * 2, PALETTE.boatHull);
+      drawPixelRect(
+        ctx,
+        bx + P * 2,
+        by + P * 2,
+        P * 14,
+        P * 2,
+        PALETTE.boatHull,
+      );
       drawPixelRect(ctx, bx, by + P * 4, P * 18, P * 2, PALETTE.boatHull);
-      drawPixelRect(ctx, bx + P * 2, by + P * 6, P * 14, P * 2, PALETTE.boatHull);
-      drawPixelRect(ctx, bx + P * 3, by + P * 2, P * 12, P * 2, PALETTE.pierDeck);
+      drawPixelRect(
+        ctx,
+        bx + P * 2,
+        by + P * 6,
+        P * 14,
+        P * 2,
+        PALETTE.boatHull,
+      );
+      drawPixelRect(
+        ctx,
+        bx + P * 3,
+        by + P * 2,
+        P * 12,
+        P * 2,
+        PALETTE.pierDeck,
+      );
       drawPixelRect(ctx, bx + P * 8, by - P * 10, P, P * 12, PALETTE.pierPylon);
       drawPixelRect(ctx, bx + P * 9, by - P * 9, P * 2, P * 2, boat.sailColor);
       drawPixelRect(ctx, bx + P * 9, by - P * 7, P * 3, P * 2, boat.sailColor);
@@ -820,7 +1029,14 @@ function drawBoats(
     const edgeX = getActualBeachEdge(by, W, H, horizonY);
     if (bx + P * 14 < edgeX) {
       // Kayak body — long and narrow
-      drawPixelRect(ctx, bx + P * 2, by + P * 2, P * 10, P * 2, PALETTE.umbrellaYellow);
+      drawPixelRect(
+        ctx,
+        bx + P * 2,
+        by + P * 2,
+        P * 10,
+        P * 2,
+        PALETTE.umbrellaYellow,
+      );
       drawPixelRect(ctx, bx, by + P * 3, P * 14, P, PALETTE.umbrellaYellow);
       // Person
       drawPixelRect(ctx, bx + P * 6, by, P * 2, P * 2, PALETTE.skinTone);
@@ -866,8 +1082,22 @@ function drawMarineLife(
         }
         // Foam at waterline
         drawPixelRect(ctx, centerX - P * 4, baseY, P * 8, P, PALETTE.shallows);
-        drawPixelRect(ctx, centerX - P * 6, baseY + P, P * 3, P, PALETTE.shallows);
-        drawPixelRect(ctx, centerX + P * 4, baseY + P, P * 3, P, PALETTE.shallows);
+        drawPixelRect(
+          ctx,
+          centerX - P * 6,
+          baseY + P,
+          P * 3,
+          P,
+          PALETTE.shallows,
+        );
+        drawPixelRect(
+          ctx,
+          centerX + P * 4,
+          baseY + P,
+          P * 3,
+          P,
+          PALETTE.shallows,
+        );
       }
 
       if (cycle > 0) {
@@ -875,27 +1105,111 @@ function drawMarineLife(
         const dy = snap(baseY - jumpHeight);
 
         // Body — sleek curved shape, bigger
-        drawPixelRect(ctx, baseX + P * 4, dy, P * 6, P, PALETTE.buildingDark);         // top line
-        drawPixelRect(ctx, baseX + P * 2, dy + P, P * 10, P, PALETTE.buildingDark);     // upper body
-        drawPixelRect(ctx, baseX + P, dy + P * 2, P * 12, P, PALETTE.buildingWindowDim);// mid body
-        drawPixelRect(ctx, baseX + P * 2, dy + P * 3, P * 10, P, PALETTE.buildingWindowDim);// lower body
-        drawPixelRect(ctx, baseX + P * 4, dy + P * 4, P * 6, P, PALETTE.cloudDark);     // belly
+        drawPixelRect(ctx, baseX + P * 4, dy, P * 6, P, PALETTE.buildingDark); // top line
+        drawPixelRect(
+          ctx,
+          baseX + P * 2,
+          dy + P,
+          P * 10,
+          P,
+          PALETTE.buildingDark,
+        ); // upper body
+        drawPixelRect(
+          ctx,
+          baseX + P,
+          dy + P * 2,
+          P * 12,
+          P,
+          PALETTE.buildingWindowDim,
+        ); // mid body
+        drawPixelRect(
+          ctx,
+          baseX + P * 2,
+          dy + P * 3,
+          P * 10,
+          P,
+          PALETTE.buildingWindowDim,
+        ); // lower body
+        drawPixelRect(
+          ctx,
+          baseX + P * 4,
+          dy + P * 4,
+          P * 6,
+          P,
+          PALETTE.cloudDark,
+        ); // belly
         // Snout
-        drawPixelRect(ctx, baseX + P * 13, dy + P * 2, P * 2, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX + P * 14, dy + P * 3, P, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX + P * 13,
+          dy + P * 2,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 14,
+          dy + P * 3,
+          P,
+          P,
+          PALETTE.buildingDark,
+        );
         // Dorsal fin
-        drawPixelRect(ctx, baseX + P * 7, dy - P, P * 2, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX + P * 8, dy - P * 2, P, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX + P * 7,
+          dy - P,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 8,
+          dy - P * 2,
+          P,
+          P,
+          PALETTE.buildingDark,
+        );
         // Tail fluke
         drawPixelRect(ctx, baseX, dy + P, P * 2, P, PALETTE.buildingDark);
         drawPixelRect(ctx, baseX - P, dy, P * 2, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX - P, dy + P * 3, P * 2, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX - P * 2, dy + P * 4, P, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX - P,
+          dy + P * 3,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX - P * 2,
+          dy + P * 4,
+          P,
+          P,
+          PALETTE.buildingDark,
+        );
         // Eye
         drawPixelRect(ctx, baseX + P * 11, dy + P * 2, P, P, PALETTE.boatSail);
         // Pectoral fin
-        drawPixelRect(ctx, baseX + P * 6, dy + P * 4, P * 2, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX + P * 5, dy + P * 5, P, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX + P * 6,
+          dy + P * 4,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 5,
+          dy + P * 5,
+          P,
+          P,
+          PALETTE.buildingDark,
+        );
       }
     }
   }
@@ -903,7 +1217,7 @@ function drawMarineLife(
   // --- WHALE (single, very rare, big and detailed) ---
   {
     const baseX = snap(W * 0.45);
-    const baseY = snap(horizonY + oceanH * 0.30);
+    const baseY = snap(horizonY + oceanH * 0.3);
     const edgeX = getActualBeachEdge(baseY, W, H, horizonY);
     if (baseX + P * 24 < edgeX) {
       // Very slow cycle — only surfaces ~10% of the time
@@ -922,16 +1236,51 @@ function drawMarineLife(
             drawPixelRect(ctx, sx, sy, P, P, PALETTE.boatSail);
             // Secondary smaller drops
             if (i % 2 === 0) {
-              drawPixelRect(ctx, sx + side * P, snap(sy - P), P, P, PALETTE.boatSail);
+              drawPixelRect(
+                ctx,
+                sx + side * P,
+                snap(sy - P),
+                P,
+                P,
+                PALETTE.boatSail,
+              );
             }
           }
         }
         // Wide foam line
         drawPixelRect(ctx, centerX - P * 8, baseY, P * 16, P, PALETTE.shallows);
-        drawPixelRect(ctx, centerX - P * 10, baseY + P, P * 5, P, PALETTE.shallows);
-        drawPixelRect(ctx, centerX + P * 6, baseY + P, P * 5, P, PALETTE.shallows);
-        drawPixelRect(ctx, centerX - P * 12, baseY + P * 2, P * 3, P, PALETTE.oceanWave);
-        drawPixelRect(ctx, centerX + P * 10, baseY + P * 2, P * 3, P, PALETTE.oceanWave);
+        drawPixelRect(
+          ctx,
+          centerX - P * 10,
+          baseY + P,
+          P * 5,
+          P,
+          PALETTE.shallows,
+        );
+        drawPixelRect(
+          ctx,
+          centerX + P * 6,
+          baseY + P,
+          P * 5,
+          P,
+          PALETTE.shallows,
+        );
+        drawPixelRect(
+          ctx,
+          centerX - P * 12,
+          baseY + P * 2,
+          P * 3,
+          P,
+          PALETTE.oceanWave,
+        );
+        drawPixelRect(
+          ctx,
+          centerX + P * 10,
+          baseY + P * 2,
+          P * 3,
+          P,
+          PALETTE.oceanWave,
+        );
       }
 
       if (cycle > 0) {
@@ -939,46 +1288,207 @@ function drawMarineLife(
         const dy = snap(baseY - jumpHeight);
 
         // Body — massive rounded shape
-        drawPixelRect(ctx, baseX + P * 4, dy, P * 14, P, PALETTE.buildingDark);          // top
-        drawPixelRect(ctx, baseX + P * 2, dy + P, P * 18, P * 2, PALETTE.buildingDark);  // upper
-        drawPixelRect(ctx, baseX, dy + P * 3, P * 22, P * 2, PALETTE.buildingDark);      // widest
-        drawPixelRect(ctx, baseX + P, dy + P * 5, P * 20, P, PALETTE.buildingWindowDim); // lower
-        drawPixelRect(ctx, baseX + P * 2, dy + P * 6, P * 18, P, PALETTE.buildingWindowDim);
-        drawPixelRect(ctx, baseX + P * 4, dy + P * 7, P * 14, P, PALETTE.cloudDark);     // belly
+        drawPixelRect(ctx, baseX + P * 4, dy, P * 14, P, PALETTE.buildingDark); // top
+        drawPixelRect(
+          ctx,
+          baseX + P * 2,
+          dy + P,
+          P * 18,
+          P * 2,
+          PALETTE.buildingDark,
+        ); // upper
+        drawPixelRect(
+          ctx,
+          baseX,
+          dy + P * 3,
+          P * 22,
+          P * 2,
+          PALETTE.buildingDark,
+        ); // widest
+        drawPixelRect(
+          ctx,
+          baseX + P,
+          dy + P * 5,
+          P * 20,
+          P,
+          PALETTE.buildingWindowDim,
+        ); // lower
+        drawPixelRect(
+          ctx,
+          baseX + P * 2,
+          dy + P * 6,
+          P * 18,
+          P,
+          PALETTE.buildingWindowDim,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 4,
+          dy + P * 7,
+          P * 14,
+          P,
+          PALETTE.cloudDark,
+        ); // belly
         // Head bump
-        drawPixelRect(ctx, baseX + P * 20, dy + P, P * 2, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX + P * 21, dy + P * 2, P * 2, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX + P * 20,
+          dy + P,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 21,
+          dy + P * 2,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
         // Jaw line
-        drawPixelRect(ctx, baseX + P * 18, dy + P * 6, P * 4, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX + P * 20, dy + P * 5, P * 2, P, PALETTE.buildingWindowDim);
+        drawPixelRect(
+          ctx,
+          baseX + P * 18,
+          dy + P * 6,
+          P * 4,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 20,
+          dy + P * 5,
+          P * 2,
+          P,
+          PALETTE.buildingWindowDim,
+        );
         // Eye
         drawPixelRect(ctx, baseX + P * 18, dy + P * 3, P, P, PALETTE.boatSail);
         // Pectoral fin
-        drawPixelRect(ctx, baseX + P * 10, dy + P * 7, P * 3, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX + P * 9, dy + P * 8, P * 2, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX + P * 10,
+          dy + P * 7,
+          P * 3,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 9,
+          dy + P * 8,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
         // Tail fluke — wide and forked
-        drawPixelRect(ctx, baseX - P * 2, dy + P * 2, P * 3, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX - P * 4, dy + P, P * 3, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX - P * 2,
+          dy + P * 2,
+          P * 3,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX - P * 4,
+          dy + P,
+          P * 3,
+          P,
+          PALETTE.buildingDark,
+        );
         drawPixelRect(ctx, baseX - P * 5, dy, P * 2, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX - P * 4, dy + P * 5, P * 3, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX - P * 5, dy + P * 6, P * 2, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX - P * 4,
+          dy + P * 5,
+          P * 3,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX - P * 5,
+          dy + P * 6,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
         // Dorsal fin
-        drawPixelRect(ctx, baseX + P * 8, dy - P, P * 3, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX + P * 9, dy - P * 2, P * 2, P, PALETTE.buildingDark);
-        drawPixelRect(ctx, baseX + P * 10, dy - P * 3, P, P, PALETTE.buildingDark);
+        drawPixelRect(
+          ctx,
+          baseX + P * 8,
+          dy - P,
+          P * 3,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 9,
+          dy - P * 2,
+          P * 2,
+          P,
+          PALETTE.buildingDark,
+        );
+        drawPixelRect(
+          ctx,
+          baseX + P * 10,
+          dy - P * 3,
+          P,
+          P,
+          PALETTE.buildingDark,
+        );
 
         // Water spout — tall V-shaped spray
         if (cycle > 0.7) {
           const spoutX = baseX + P * 16;
           // Two angled streams
           for (let i = 1; i <= 6; i++) {
-            drawPixelRect(ctx, spoutX - i, dy - P * (2 + i), P, P, PALETTE.boatSail);
-            drawPixelRect(ctx, spoutX + P + i, dy - P * (2 + i), P, P, PALETTE.boatSail);
+            drawPixelRect(
+              ctx,
+              spoutX - i,
+              dy - P * (2 + i),
+              P,
+              P,
+              PALETTE.boatSail,
+            );
+            drawPixelRect(
+              ctx,
+              spoutX + P + i,
+              dy - P * (2 + i),
+              P,
+              P,
+              PALETTE.boatSail,
+            );
           }
           // Mist at top
-          drawPixelRect(ctx, spoutX - P * 2, dy - P * 8, P, P, PALETTE.cloudLight);
-          drawPixelRect(ctx, spoutX + P * 2, dy - P * 8, P, P, PALETTE.cloudLight);
-          drawPixelRect(ctx, spoutX - P, dy - P * 9, P * 3, P, PALETTE.cloudLight);
+          drawPixelRect(
+            ctx,
+            spoutX - P * 2,
+            dy - P * 8,
+            P,
+            P,
+            PALETTE.cloudLight,
+          );
+          drawPixelRect(
+            ctx,
+            spoutX + P * 2,
+            dy - P * 8,
+            P,
+            P,
+            PALETTE.cloudLight,
+          );
+          drawPixelRect(
+            ctx,
+            spoutX - P,
+            dy - P * 9,
+            P * 3,
+            P,
+            PALETTE.cloudLight,
+          );
         }
       }
     }
@@ -996,14 +1506,14 @@ function drawBeachElements(
 
   // --- BEACH UMBRELLAS ---
   const umbrellas = [
-    { yPct: 0.25, xPct: 0.10, color: PALETTE.umbrellaRed, towel: true },
+    { yPct: 0.25, xPct: 0.1, color: PALETTE.umbrellaRed, towel: true },
     { yPct: 0.32, xPct: 0.22, color: PALETTE.umbrellaBlue, towel: false },
     { yPct: 0.38, xPct: 0.14, color: PALETTE.umbrellaYellow, towel: true },
     { yPct: 0.48, xPct: 0.08, color: PALETTE.umbrellaRed, towel: true },
     { yPct: 0.52, xPct: 0.25, color: PALETTE.umbrellaBlue, towel: false },
-    { yPct: 0.60, xPct: 0.12, color: PALETTE.umbrellaYellow, towel: true },
-    { yPct: 0.72, xPct: 0.20, color: PALETTE.umbrellaRed, towel: false },
-    { yPct: 0.80, xPct: 0.15, color: PALETTE.umbrellaBlue, towel: true },
+    { yPct: 0.6, xPct: 0.12, color: PALETTE.umbrellaYellow, towel: true },
+    { yPct: 0.72, xPct: 0.2, color: PALETTE.umbrellaRed, towel: false },
+    { yPct: 0.8, xPct: 0.15, color: PALETTE.umbrellaBlue, towel: true },
     { yPct: 0.88, xPct: 0.28, color: PALETTE.umbrellaYellow, towel: true },
   ];
 
@@ -1016,18 +1526,32 @@ function drawBeachElements(
     if (ux < edgeX + PIXEL * 2 || ux > W - PIXEL * 4) return;
 
     // Pole
-    drawPixelRect(ctx, ux, uy - PIXEL * 3, PIXEL, PIXEL * 3, PALETTE.volleyballPole);
+    drawPixelRect(
+      ctx,
+      ux,
+      uy - PIXEL * 3,
+      PIXEL,
+      PIXEL * 3,
+      PALETTE.volleyballPole,
+    );
     // Canopy (3px wide)
     drawPixelRect(ctx, ux - PIXEL, uy - PIXEL * 4, PIXEL * 3, PIXEL, u.color);
     // Towel next to some
     if (u.towel) {
-      drawPixelRect(ctx, ux + PIXEL * 2, uy - PIXEL, PIXEL * 3, PIXEL * 2, PALETTE.towel);
+      drawPixelRect(
+        ctx,
+        ux + PIXEL * 2,
+        uy - PIXEL,
+        PIXEL * 3,
+        PIXEL * 2,
+        PALETTE.towel,
+      );
     }
   });
 
   // --- VOLLEYBALL NETS ---
   const nets = [
-    { yPct: 0.40, xPct: 0.18 },
+    { yPct: 0.4, xPct: 0.18 },
     { yPct: 0.65, xPct: 0.16 },
   ];
 
@@ -1044,10 +1568,24 @@ function drawBeachElements(
     // Left pole
     drawPixelRect(ctx, nx, ny - poleH, PIXEL, poleH, PALETTE.volleyballPole);
     // Right pole
-    drawPixelRect(ctx, nx + netW, ny - poleH, PIXEL, poleH, PALETTE.volleyballPole);
+    drawPixelRect(
+      ctx,
+      nx + netW,
+      ny - poleH,
+      PIXEL,
+      poleH,
+      PALETTE.volleyballPole,
+    );
     // Net line (dotted)
     for (let dx = 0; dx <= netW; dx += PIXEL * 2) {
-      drawPixelRect(ctx, nx + dx, ny - poleH + PIXEL, PIXEL, PIXEL, PALETTE.volleyballNet);
+      drawPixelRect(
+        ctx,
+        nx + dx,
+        ny - poleH + PIXEL,
+        PIXEL,
+        PIXEL,
+        PALETTE.volleyballNet,
+      );
     }
   });
 
@@ -1055,7 +1593,7 @@ function drawBeachElements(
   const boards = [
     { yPct: 0.44, xPct: 0.33, color: PALETTE.surfboard },
     { yPct: 0.69, xPct: 0.34, color: PALETTE.umbrellaBlue },
-    { yPct: 0.55, xPct: 0.30, color: PALETTE.umbrellaRed },
+    { yPct: 0.55, xPct: 0.3, color: PALETTE.umbrellaRed },
   ];
 
   boards.forEach((b) => {
@@ -1091,28 +1629,119 @@ function drawExtraBeachLife(
 
   // --- 2a. MUSCLE BEACH GYM ---
   {
-    const { x, y, sandWidth } = pos(0.55, 0.20);
+    const { x, y, sandWidth } = pos(0.55, 0.2);
     if (sandWidth >= PIXEL * 10) {
       // Pull-up bar station: 2 uprights + top bar + base
-      drawPixelRect(ctx, x, y - PIXEL * 5, PIXEL, PIXEL * 5, PALETTE.muscleFrame);
-      drawPixelRect(ctx, x + PIXEL * 4, y - PIXEL * 5, PIXEL, PIXEL * 5, PALETTE.muscleFrame);
+      drawPixelRect(
+        ctx,
+        x,
+        y - PIXEL * 5,
+        PIXEL,
+        PIXEL * 5,
+        PALETTE.muscleFrame,
+      );
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 4,
+        y - PIXEL * 5,
+        PIXEL,
+        PIXEL * 5,
+        PALETTE.muscleFrame,
+      );
       drawPixelRect(ctx, x, y - PIXEL * 5, PIXEL * 5, PIXEL, PALETTE.muscleBar);
       drawPixelRect(ctx, x - PIXEL, y, PIXEL * 7, PIXEL, PALETTE.muscleFrame);
 
       // Bench press nearby
-      drawPixelRect(ctx, x + PIXEL * 7, y - PIXEL, PIXEL * 4, PIXEL, PALETTE.muscleBar); // bench surface
-      drawPixelRect(ctx, x + PIXEL * 7, y - PIXEL, PIXEL, PIXEL * 2, PALETTE.muscleFrame); // left leg
-      drawPixelRect(ctx, x + PIXEL * 10, y - PIXEL, PIXEL, PIXEL * 2, PALETTE.muscleFrame); // right leg
-      drawPixelRect(ctx, x + PIXEL * 7, y - PIXEL * 2, PIXEL * 5, PIXEL, PALETTE.muscleBar); // barbell
-      drawPixelRect(ctx, x + PIXEL * 6, y - PIXEL * 3, PIXEL, PIXEL * 2, PALETTE.muscleFrame); // left plate
-      drawPixelRect(ctx, x + PIXEL * 12, y - PIXEL * 3, PIXEL, PIXEL * 2, PALETTE.muscleFrame); // right plate
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 7,
+        y - PIXEL,
+        PIXEL * 4,
+        PIXEL,
+        PALETTE.muscleBar,
+      ); // bench surface
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 7,
+        y - PIXEL,
+        PIXEL,
+        PIXEL * 2,
+        PALETTE.muscleFrame,
+      ); // left leg
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 10,
+        y - PIXEL,
+        PIXEL,
+        PIXEL * 2,
+        PALETTE.muscleFrame,
+      ); // right leg
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 7,
+        y - PIXEL * 2,
+        PIXEL * 5,
+        PIXEL,
+        PALETTE.muscleBar,
+      ); // barbell
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 6,
+        y - PIXEL * 3,
+        PIXEL,
+        PIXEL * 2,
+        PALETTE.muscleFrame,
+      ); // left plate
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 12,
+        y - PIXEL * 3,
+        PIXEL,
+        PIXEL * 2,
+        PALETTE.muscleFrame,
+      ); // right plate
 
       // Tiny person doing a pull-up
-      drawPixelRect(ctx, x + PIXEL * 2, y - PIXEL * 6, PIXEL, PIXEL, PALETTE.skinTone); // head
-      drawPixelRect(ctx, x + PIXEL * 2, y - PIXEL * 5, PIXEL, PIXEL, PALETTE.swimTrunk); // torso
-      drawPixelRect(ctx, x + PIXEL, y - PIXEL * 5, PIXEL, PIXEL, PALETTE.skinTone); // left arm
-      drawPixelRect(ctx, x + PIXEL * 3, y - PIXEL * 5, PIXEL, PIXEL, PALETTE.skinTone); // right arm
-      drawPixelRect(ctx, x + PIXEL * 2, y - PIXEL * 4, PIXEL, PIXEL, PALETTE.skinTone); // legs
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 2,
+        y - PIXEL * 6,
+        PIXEL,
+        PIXEL,
+        PALETTE.skinTone,
+      ); // head
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 2,
+        y - PIXEL * 5,
+        PIXEL,
+        PIXEL,
+        PALETTE.swimTrunk,
+      ); // torso
+      drawPixelRect(
+        ctx,
+        x + PIXEL,
+        y - PIXEL * 5,
+        PIXEL,
+        PIXEL,
+        PALETTE.skinTone,
+      ); // left arm
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 3,
+        y - PIXEL * 5,
+        PIXEL,
+        PIXEL,
+        PALETTE.skinTone,
+      ); // right arm
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 2,
+        y - PIXEL * 4,
+        PIXEL,
+        PIXEL,
+        PALETTE.skinTone,
+      ); // legs
     }
   }
 
@@ -1133,30 +1762,59 @@ function drawExtraBeachLife(
     drawPixelRect(ctx, x, y - PIXEL * 2, PIXEL, PIXEL, PALETTE.wetSand);
     drawPixelRect(ctx, x, y - PIXEL * 3, PIXEL, PIXEL, PALETTE.veniceArch);
     // Right turret
-    drawPixelRect(ctx, x + PIXEL * 2, y - PIXEL * 2, PIXEL, PIXEL, PALETTE.wetSand);
-    drawPixelRect(ctx, x + PIXEL * 2, y - PIXEL * 3, PIXEL, PIXEL, PALETTE.veniceArch);
+    drawPixelRect(
+      ctx,
+      x + PIXEL * 2,
+      y - PIXEL * 2,
+      PIXEL,
+      PIXEL,
+      PALETTE.wetSand,
+    );
+    drawPixelRect(
+      ctx,
+      x + PIXEL * 2,
+      y - PIXEL * 3,
+      PIXEL,
+      PIXEL,
+      PALETTE.veniceArch,
+    );
   });
 
   // --- 2c. BEACHGOERS / TINY PEOPLE ---
   // Standing people
   const standingPeople = [
-    { yPct: 0.30, xPct: 0.12, skin: PALETTE.skinTone, suit: PALETTE.swimTrunk },
-    { yPct: 0.50, xPct: 0.18, skin: PALETTE.skinToneDark, suit: PALETTE.bikini },
+    { yPct: 0.3, xPct: 0.12, skin: PALETTE.skinTone, suit: PALETTE.swimTrunk },
+    { yPct: 0.5, xPct: 0.18, skin: PALETTE.skinToneDark, suit: PALETTE.bikini },
     { yPct: 0.75, xPct: 0.22, skin: PALETTE.skinTone, suit: PALETTE.bikini },
   ];
   standingPeople.forEach((p) => {
     const { x, y, sandWidth } = pos(p.yPct, p.xPct);
     if (sandWidth < PIXEL * 8) return;
     drawPixelRect(ctx, x, y - PIXEL * 2, PIXEL, PIXEL, p.skin); // head
-    drawPixelRect(ctx, x, y - PIXEL, PIXEL, PIXEL, p.suit);     // torso
-    drawPixelRect(ctx, x, y, PIXEL, PIXEL, p.skin);             // legs
+    drawPixelRect(ctx, x, y - PIXEL, PIXEL, PIXEL, p.suit); // torso
+    drawPixelRect(ctx, x, y, PIXEL, PIXEL, p.skin); // legs
   });
 
   // Lying people (on towels)
   const lyingPeople = [
-    { yPct: 0.28, xPct: 0.08, skin: PALETTE.skinToneDark, towelColor: PALETTE.towelBlue },
-    { yPct: 0.62, xPct: 0.14, skin: PALETTE.skinTone, towelColor: PALETTE.towel },
-    { yPct: 0.85, xPct: 0.10, skin: PALETTE.skinToneDark, towelColor: PALETTE.towelBlue },
+    {
+      yPct: 0.28,
+      xPct: 0.08,
+      skin: PALETTE.skinToneDark,
+      towelColor: PALETTE.towelBlue,
+    },
+    {
+      yPct: 0.62,
+      xPct: 0.14,
+      skin: PALETTE.skinTone,
+      towelColor: PALETTE.towel,
+    },
+    {
+      yPct: 0.85,
+      xPct: 0.1,
+      skin: PALETTE.skinToneDark,
+      towelColor: PALETTE.towelBlue,
+    },
   ];
   lyingPeople.forEach((p) => {
     const { x, y, sandWidth } = pos(p.yPct, p.xPct);
@@ -1168,7 +1826,7 @@ function drawExtraBeachLife(
   // --- 2d. SEAGULLS ON SAND ---
   const seagulls = [
     { yPct: 0.34, xPct: 0.02 },
-    { yPct: 0.50, xPct: 0.04 },
+    { yPct: 0.5, xPct: 0.04 },
     { yPct: 0.68, xPct: 0.03 },
     { yPct: 0.86, xPct: 0.05 },
   ];
@@ -1176,25 +1834,53 @@ function drawExtraBeachLife(
     const { x, y, sandWidth } = pos(s.yPct, s.xPct);
     if (sandWidth < PIXEL * 6) return;
     drawPixelRect(ctx, x, y - PIXEL, PIXEL * 2, PIXEL, PALETTE.boatSail); // body
-    drawPixelRect(ctx, x + PIXEL * 2, y - PIXEL * 2, PIXEL, PIXEL, PALETTE.boatSail); // head
+    drawPixelRect(
+      ctx,
+      x + PIXEL * 2,
+      y - PIXEL * 2,
+      PIXEL,
+      PIXEL,
+      PALETTE.boatSail,
+    ); // head
     drawPixelRect(ctx, x + PIXEL, y, PIXEL, PIXEL, PALETTE.pierPylon); // legs
   });
 
   // --- 2e. BEACH BONFIRE PITS ---
   const bonfires = [
     { yPct: 0.46, xPct: 0.07 },
-    { yPct: 0.76, xPct: 0.10 },
+    { yPct: 0.76, xPct: 0.1 },
   ];
   bonfires.forEach((b) => {
     const { x, y, sandWidth } = pos(b.yPct, b.xPct);
     if (sandWidth < PIXEL * 8) return;
     // Stone ring
     drawPixelRect(ctx, x, y, PIXEL * 5, PIXEL, PALETTE.buildingDark);
-    drawPixelRect(ctx, x + PIXEL, y - PIXEL, PIXEL * 3, PIXEL, PALETTE.buildingDark);
+    drawPixelRect(
+      ctx,
+      x + PIXEL,
+      y - PIXEL,
+      PIXEL * 3,
+      PIXEL,
+      PALETTE.buildingDark,
+    );
     // Embers
-    drawPixelRect(ctx, x + PIXEL, y - PIXEL * 2, PIXEL * 3, PIXEL, PALETTE.bonfireEmber);
+    drawPixelRect(
+      ctx,
+      x + PIXEL,
+      y - PIXEL * 2,
+      PIXEL * 3,
+      PIXEL,
+      PALETTE.bonfireEmber,
+    );
     // Bright center
-    drawPixelRect(ctx, x + PIXEL * 2, y - PIXEL * 3, PIXEL, PIXEL, PALETTE.umbrellaYellow);
+    drawPixelRect(
+      ctx,
+      x + PIXEL * 2,
+      y - PIXEL * 3,
+      PIXEL,
+      PIXEL,
+      PALETTE.umbrellaYellow,
+    );
   });
 
   // --- 2f. ICE CREAM CART ---
@@ -1202,29 +1888,82 @@ function drawExtraBeachLife(
     const { x, y, sandWidth } = pos(0.58, 0.08);
     if (sandWidth >= PIXEL * 10) {
       // Awning (striped)
-      drawPixelRect(ctx, x, y - PIXEL * 5, PIXEL * 2, PIXEL, PALETTE.lifeguardBase);
-      drawPixelRect(ctx, x + PIXEL * 2, y - PIXEL * 5, PIXEL * 2, PIXEL, PALETTE.boatSail);
+      drawPixelRect(
+        ctx,
+        x,
+        y - PIXEL * 5,
+        PIXEL * 2,
+        PIXEL,
+        PALETTE.lifeguardBase,
+      );
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 2,
+        y - PIXEL * 5,
+        PIXEL * 2,
+        PIXEL,
+        PALETTE.boatSail,
+      );
       // Support poles
       drawPixelRect(ctx, x, y - PIXEL * 4, PIXEL, PIXEL * 4, PALETTE.pierPylon);
-      drawPixelRect(ctx, x + PIXEL * 3, y - PIXEL * 4, PIXEL, PIXEL * 4, PALETTE.pierPylon);
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 3,
+        y - PIXEL * 4,
+        PIXEL,
+        PIXEL * 4,
+        PALETTE.pierPylon,
+      );
       // Cart body
-      drawPixelRect(ctx, x, y - PIXEL * 3, PIXEL * 4, PIXEL * 3, PALETTE.boatSail);
+      drawPixelRect(
+        ctx,
+        x,
+        y - PIXEL * 3,
+        PIXEL * 4,
+        PIXEL * 3,
+        PALETTE.boatSail,
+      );
       // Serving window
-      drawPixelRect(ctx, x + PIXEL, y - PIXEL * 2, PIXEL * 2, PIXEL, PALETTE.buildingWindowWarm);
+      drawPixelRect(
+        ctx,
+        x + PIXEL,
+        y - PIXEL * 2,
+        PIXEL * 2,
+        PIXEL,
+        PALETTE.buildingWindowWarm,
+      );
       // Wheels
       drawPixelRect(ctx, x, y + PIXEL, PIXEL, PIXEL, PALETTE.road);
       drawPixelRect(ctx, x + PIXEL * 3, y + PIXEL, PIXEL, PIXEL, PALETTE.road);
       // Vendor person
-      drawPixelRect(ctx, x + PIXEL * 5, y - PIXEL * 2, PIXEL, PIXEL, PALETTE.skinTone); // head
-      drawPixelRect(ctx, x + PIXEL * 5, y - PIXEL, PIXEL, PIXEL, PALETTE.boatSail);     // torso
-      drawPixelRect(ctx, x + PIXEL * 5, y, PIXEL, PIXEL, PALETTE.skinTone);              // legs
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 5,
+        y - PIXEL * 2,
+        PIXEL,
+        PIXEL,
+        PALETTE.skinTone,
+      ); // head
+      drawPixelRect(
+        ctx,
+        x + PIXEL * 5,
+        y - PIXEL,
+        PIXEL,
+        PIXEL,
+        PALETTE.boatSail,
+      ); // torso
+      drawPixelRect(ctx, x + PIXEL * 5, y, PIXEL, PIXEL, PALETTE.skinTone); // legs
     }
   }
 
   // --- 2g. SURFERS IN WATER ---
   const surfers = [
-    { yPct: 0.30, boardColor: PALETTE.surfboard, skin: PALETTE.skinTone },
-    { yPct: 0.55, boardColor: PALETTE.umbrellaBlue, skin: PALETTE.skinToneDark },
+    { yPct: 0.3, boardColor: PALETTE.surfboard, skin: PALETTE.skinTone },
+    {
+      yPct: 0.55,
+      boardColor: PALETTE.umbrellaBlue,
+      skin: PALETTE.skinToneDark,
+    },
     { yPct: 0.78, boardColor: PALETTE.umbrellaRed, skin: PALETTE.skinTone },
   ];
   surfers.forEach((s) => {
@@ -1237,7 +1976,7 @@ function drawExtraBeachLife(
     drawPixelRect(ctx, sx, y, PIXEL * 3, PIXEL, s.boardColor);
     // Person on board
     drawPixelRect(ctx, sx + PIXEL, y - PIXEL, PIXEL, PIXEL, s.skin); // head
-    drawPixelRect(ctx, sx, y - PIXEL, PIXEL, PIXEL, s.skin);         // left arm
+    drawPixelRect(ctx, sx, y - PIXEL, PIXEL, PIXEL, s.skin); // left arm
     drawPixelRect(ctx, sx + PIXEL * 2, y - PIXEL, PIXEL, PIXEL, s.skin); // right arm
   });
 
@@ -1246,15 +1985,57 @@ function drawExtraBeachLife(
     const kiteX = snap(W * 0.45);
     const kiteY = snap(horizonY - PIXEL * 12);
     // Diamond shape
-    drawPixelRect(ctx, kiteX, kiteY, PIXEL, PIXEL, PALETTE.lifeguardBase);                     // top
-    drawPixelRect(ctx, kiteX - PIXEL, kiteY + PIXEL, PIXEL * 3, PIXEL, PALETTE.umbrellaYellow); // middle
-    drawPixelRect(ctx, kiteX, kiteY + PIXEL * 2, PIXEL, PIXEL, PALETTE.lifeguardBase);          // bottom
+    drawPixelRect(ctx, kiteX, kiteY, PIXEL, PIXEL, PALETTE.lifeguardBase); // top
+    drawPixelRect(
+      ctx,
+      kiteX - PIXEL,
+      kiteY + PIXEL,
+      PIXEL * 3,
+      PIXEL,
+      PALETTE.umbrellaYellow,
+    ); // middle
+    drawPixelRect(
+      ctx,
+      kiteX,
+      kiteY + PIXEL * 2,
+      PIXEL,
+      PIXEL,
+      PALETTE.lifeguardBase,
+    ); // bottom
     // String
-    drawPixelRect(ctx, kiteX, kiteY + PIXEL * 3, PIXEL, PIXEL * 3, PALETTE.muscleFrame);
+    drawPixelRect(
+      ctx,
+      kiteX,
+      kiteY + PIXEL * 3,
+      PIXEL,
+      PIXEL * 3,
+      PALETTE.muscleFrame,
+    );
     // Tail bows
-    drawPixelRect(ctx, kiteX - PIXEL, kiteY + PIXEL * 4, PIXEL, PIXEL, PALETTE.umbrellaBlue);
-    drawPixelRect(ctx, kiteX + PIXEL, kiteY + PIXEL * 5, PIXEL, PIXEL, PALETTE.umbrellaBlue);
-    drawPixelRect(ctx, kiteX - PIXEL, kiteY + PIXEL * 6, PIXEL, PIXEL, PALETTE.umbrellaBlue);
+    drawPixelRect(
+      ctx,
+      kiteX - PIXEL,
+      kiteY + PIXEL * 4,
+      PIXEL,
+      PIXEL,
+      PALETTE.umbrellaBlue,
+    );
+    drawPixelRect(
+      ctx,
+      kiteX + PIXEL,
+      kiteY + PIXEL * 5,
+      PIXEL,
+      PIXEL,
+      PALETTE.umbrellaBlue,
+    );
+    drawPixelRect(
+      ctx,
+      kiteX - PIXEL,
+      kiteY + PIXEL * 6,
+      PIXEL,
+      PIXEL,
+      PALETTE.umbrellaBlue,
+    );
   }
 }
 
@@ -1273,13 +2054,27 @@ function drawBikePath(
 
     // Path borders
     drawPixelRect(ctx, pathX, y, PIXEL, PIXEL, PALETTE.bikePathEdge);
-    drawPixelRect(ctx, pathX + PIXEL * 3, y, PIXEL, PIXEL, PALETTE.bikePathEdge);
+    drawPixelRect(
+      ctx,
+      pathX + PIXEL * 3,
+      y,
+      PIXEL,
+      PIXEL,
+      PALETTE.bikePathEdge,
+    );
     // Path fill
     drawPixelRect(ctx, pathX + PIXEL, y, PIXEL * 2, PIXEL, PALETTE.bikePath);
     // Center dashes
     const dashIdx = Math.floor(y / (PIXEL * 3));
     if (dashIdx % 2 === 0) {
-      drawPixelRect(ctx, pathX + PIXEL + PIXEL * 0.5, y, PIXEL, PIXEL, PALETTE.bikePathDash);
+      drawPixelRect(
+        ctx,
+        pathX + PIXEL + PIXEL * 0.5,
+        y,
+        PIXEL,
+        PIXEL,
+        PALETTE.bikePathDash,
+      );
     }
   }
 }
@@ -1299,20 +2094,48 @@ function drawVeniceLandmark(
   // Two columns
   const colH = PIXEL * 5;
   const archW = PIXEL * 10;
-  drawPixelRect(ctx, centerX - archW / 2, landmarkY - colH, PIXEL, colH, PALETTE.veniceArch);
-  drawPixelRect(ctx, centerX + archW / 2 - PIXEL, landmarkY - colH, PIXEL, colH, PALETTE.veniceArch);
+  drawPixelRect(
+    ctx,
+    centerX - archW / 2,
+    landmarkY - colH,
+    PIXEL,
+    colH,
+    PALETTE.veniceArch,
+  );
+  drawPixelRect(
+    ctx,
+    centerX + archW / 2 - PIXEL,
+    landmarkY - colH,
+    PIXEL,
+    colH,
+    PALETTE.veniceArch,
+  );
 
   // Horizontal bar with slight bow
   for (let bx = centerX - archW / 2; bx <= centerX + archW / 2; bx += PIXEL) {
     const distFromCenter = Math.abs(bx - centerX) / (archW / 2);
     const bow = snap(distFromCenter * distFromCenter * PIXEL * 1.5);
-    drawPixelRect(ctx, bx, landmarkY - colH - PIXEL + bow, PIXEL, PIXEL, PALETTE.veniceArchLight);
+    drawPixelRect(
+      ctx,
+      bx,
+      landmarkY - colH - PIXEL + bow,
+      PIXEL,
+      PIXEL,
+      PALETTE.veniceArchLight,
+    );
   }
 
   // "VENICE" text dots — 6 dots across the bar
   for (let i = 0; i < 6; i++) {
     const tx = centerX - archW / 2 + PIXEL * 1.5 + i * PIXEL * 1.5;
-    drawPixelRect(ctx, snap(tx), landmarkY - colH - PIXEL * 0.5, PIXEL, PIXEL, PALETTE.veniceText);
+    drawPixelRect(
+      ctx,
+      snap(tx),
+      landmarkY - colH - PIXEL * 0.5,
+      PIXEL,
+      PIXEL,
+      PALETTE.veniceText,
+    );
   }
 }
 
@@ -1323,7 +2146,7 @@ function drawLifeguardTowers(
   horizonY: number,
 ): void {
   const oceanH = H - horizonY;
-  const positions = [0.45, 0.70];
+  const positions = [0.45, 0.7];
 
   positions.forEach((pct) => {
     const towerY = snap(horizonY + oceanH * pct);
@@ -1335,14 +2158,42 @@ function drawLifeguardTowers(
     if (baseX > W - PIXEL * 4) return;
 
     // Two stilts
-    drawPixelRect(ctx, baseX, towerY - PIXEL * 4, PIXEL, PIXEL * 5, PALETTE.pierPylon);
-    drawPixelRect(ctx, baseX + PIXEL * 3, towerY - PIXEL * 4, PIXEL, PIXEL * 5, PALETTE.pierPylon);
+    drawPixelRect(
+      ctx,
+      baseX,
+      towerY - PIXEL * 4,
+      PIXEL,
+      PIXEL * 5,
+      PALETTE.pierPylon,
+    );
+    drawPixelRect(
+      ctx,
+      baseX + PIXEL * 3,
+      towerY - PIXEL * 4,
+      PIXEL,
+      PIXEL * 5,
+      PALETTE.pierPylon,
+    );
 
     // Cabin
-    drawPixelRect(ctx, baseX - PIXEL, towerY - PIXEL * 7, PIXEL * 6, PIXEL * 3, PALETTE.lifeguardBase);
+    drawPixelRect(
+      ctx,
+      baseX - PIXEL,
+      towerY - PIXEL * 7,
+      PIXEL * 6,
+      PIXEL * 3,
+      PALETTE.lifeguardBase,
+    );
 
     // Roof
-    drawPixelRect(ctx, baseX - PIXEL * 2, towerY - PIXEL * 8, PIXEL * 8, PIXEL, PALETTE.lifeguardRoof);
+    drawPixelRect(
+      ctx,
+      baseX - PIXEL * 2,
+      towerY - PIXEL * 8,
+      PIXEL * 8,
+      PIXEL,
+      PALETTE.lifeguardRoof,
+    );
   });
 }
 
@@ -1356,10 +2207,24 @@ function drawPierLights(
   for (let x = pierLeftX; x <= pierRightX; x += PIXEL * 6) {
     const i = Math.round((x - pierLeftX) / (PIXEL * 6));
     // Light post — always visible, extends from deck to top
-    drawPixelRect(ctx, x, deckY - PIXEL * 4, PIXEL, PIXEL * 4, PALETTE.pierRail);
+    drawPixelRect(
+      ctx,
+      x,
+      deckY - PIXEL * 4,
+      PIXEL,
+      PIXEL * 4,
+      PALETTE.pierRail,
+    );
     // Light glow — flickers
     if (Math.sin(t * 0.04 + i * 2.1) > -0.2) {
-      drawPixelRect(ctx, snap(x), deckY - PIXEL * 5, PIXEL * 2, PIXEL, PALETTE.pierLight);
+      drawPixelRect(
+        ctx,
+        snap(x),
+        deckY - PIXEL * 5,
+        PIXEL * 2,
+        PIXEL,
+        PALETTE.pierLight,
+      );
     }
   }
 }
@@ -1397,7 +2262,9 @@ function drawPalmTree(
     const frondLen = PIXEL * 5 * s;
     for (let p = 1; p <= 5; p++) {
       const t = p / 5;
-      const fx = snap(topX + Math.cos(frondAngle) * frondLen * t + swayOffset * 0.5);
+      const fx = snap(
+        topX + Math.cos(frondAngle) * frondLen * t + swayOffset * 0.5,
+      );
       // Droop increases quadratically
       const droop = t * t * PIXEL * 3 * s;
       const fy = snap(topY + Math.sin(frondAngle) * frondLen * t * 0.3 + droop);
@@ -1506,7 +2373,10 @@ interface HeroBackgroundProps {
   nightMode?: boolean;
 }
 
-export function HeroBackground({ children, nightMode = false }: HeroBackgroundProps) {
+export function HeroBackground({
+  children,
+  nightMode = false,
+}: HeroBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const nightModeRef = useRef(nightMode);
   nightModeRef.current = nightMode;
@@ -1599,9 +2469,15 @@ export function HeroBackground({ children, nightMode = false }: HeroBackgroundPr
       const bandCount = 16;
       for (let b = 0; b < bandCount; b++) {
         const ratio = b / bandCount;
-        const r = isNight ? Math.round(5 + ratio * 10) : Math.round(80 + ratio * 55);
-        const g = isNight ? Math.round(8 + ratio * 17) : Math.round(160 + ratio * 50);
-        const bv = isNight ? Math.round(25 + ratio * 30) : Math.round(235 + ratio * 15);
+        const r = isNight
+          ? Math.round(5 + ratio * 10)
+          : Math.round(80 + ratio * 55);
+        const g = isNight
+          ? Math.round(8 + ratio * 17)
+          : Math.round(160 + ratio * 50);
+        const bv = isNight
+          ? Math.round(25 + ratio * 30)
+          : Math.round(235 + ratio * 15);
         ctx.fillStyle = `rgb(${r},${g},${bv})`;
         ctx.fillRect(
           0,
@@ -1651,7 +2527,14 @@ export function HeroBackground({ children, nightMode = false }: HeroBackgroundPr
 
         // Fuselage — long and narrow
         drawPixelRect(ctx, px + P * 2, py + P, P * 14, P, PALETTE.boatSail);
-        drawPixelRect(ctx, px + P * 2, py + P * 2, P * 14, P, PALETTE.cloudDark);
+        drawPixelRect(
+          ctx,
+          px + P * 2,
+          py + P * 2,
+          P * 14,
+          P,
+          PALETTE.cloudDark,
+        );
         // Nose cone
         drawPixelRect(ctx, px + P * 16, py + P, P * 2, P, PALETTE.cloudDark);
         drawPixelRect(ctx, px + P * 18, py + P, P, P, PALETTE.cloudShadow);
@@ -1663,9 +2546,23 @@ export function HeroBackground({ children, nightMode = false }: HeroBackgroundPr
         drawPixelRect(ctx, px + P * 7, py, P * 5, P, PALETTE.cloudDark);
         drawPixelRect(ctx, px + P * 8, py - P, P * 3, P, PALETTE.cloudShadow);
         drawPixelRect(ctx, px + P * 7, py + P * 3, P * 5, P, PALETTE.cloudDark);
-        drawPixelRect(ctx, px + P * 8, py + P * 4, P * 3, P, PALETTE.cloudShadow);
+        drawPixelRect(
+          ctx,
+          px + P * 8,
+          py + P * 4,
+          P * 3,
+          P,
+          PALETTE.cloudShadow,
+        );
         // Window line
-        drawPixelRect(ctx, px + P * 4, py + P, P * 10, P, PALETTE.buildingWindowCool);
+        drawPixelRect(
+          ctx,
+          px + P * 4,
+          py + P,
+          P * 10,
+          P,
+          PALETTE.buildingWindowCool,
+        );
       }
 
       // 4. MOUNTAINS (right side)
