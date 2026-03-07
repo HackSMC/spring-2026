@@ -4,7 +4,7 @@ Think of this repository like your own room—if you keep things disorganized, y
 
 ## 1. Colocation (Local First)
 
-Keep code as close as possible to where it is used. If a component, hook, or utility is specific to a feature, it belongs in that feature's folder.
+Keep code as close as possible to where it is used. If a component, hook, or utility is specific to a page, it belongs in that page's folder.
 
 - **Working Directory:** `app/<page>/`
 - **Storage:** Create `components/`, `hooks/`, or `utils/` folders inside the relevant page directory.
