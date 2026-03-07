@@ -2,6 +2,144 @@ import { useEffect, useRef } from "react";
 
 const PIXEL = 4;
 
+// ─── SKY COLOR KEYFRAMES ─────────────────────────────────────────────────────
+// Each entry defines a progress value (0.0–1.0) and the RGB colors for the
+// top of the sky and the horizon. The draw loop interpolates between these.
+interface SkyKeyframe {
+  progress: number;
+  top: [number, number, number];
+  bottom: [number, number, number];
+}
+const SKY_KEYFRAMES: SkyKeyframe[] = [
+  { progress: 0.0,  top: [5, 8, 25],       bottom: [15, 25, 55] },
+  { progress: 0.22, top: [25, 30, 80],      bottom: [180, 100, 80] },
+  { progress: 0.25, top: [60, 120, 200],    bottom: [240, 160, 100] },
+  { progress: 0.40, top: [80, 160, 235],    bottom: [135, 210, 250] },
+  { progress: 0.50, top: [80, 160, 235],    bottom: [135, 210, 250] },
+  { progress: 0.73, top: [80, 155, 230],    bottom: [130, 200, 240] },
+  { progress: 0.75, top: [60, 80, 160],     bottom: [240, 120, 60] },
+  { progress: 0.80, top: [20, 25, 70],      bottom: [120, 50, 80] },
+  { progress: 1.0,  top: [5, 8, 25],        bottom: [15, 25, 55] },
+];
+
+function lerpColor(
+  a: [number, number, number],
+  b: [number, number, number],
+  t: number,
+): [number, number, number] {
+  const c = Math.max(0, Math.min(1, t));
+  return [
+    Math.round(a[0] + (b[0] - a[0]) * c),
+    Math.round(a[1] + (b[1] - a[1]) * c),
+    Math.round(a[2] + (b[2] - a[2]) * c),
+  ];
+}
+
+function getSkyColors(
+  sunProgress: number,
+): { top: [number, number, number]; bottom: [number, number, number] } {
+  const p = Math.max(0, Math.min(1, sunProgress));
+  // Find the two surrounding keyframes
+  let lo = SKY_KEYFRAMES[0];
+  let hi = SKY_KEYFRAMES[1];
+  for (let i = 0; i < SKY_KEYFRAMES.length - 1; i++) {
+    if (p >= SKY_KEYFRAMES[i].progress && p <= SKY_KEYFRAMES[i + 1].progress) {
+      lo = SKY_KEYFRAMES[i];
+      hi = SKY_KEYFRAMES[i + 1];
+      break;
+    }
+  }
+  const range = hi.progress - lo.progress;
+  const t = range > 0 ? (p - lo.progress) / range : 0;
+  return {
+    top: lerpColor(lo.top, hi.top, t),
+    bottom: lerpColor(lo.bottom, hi.bottom, t),
+  };
+}
+
+// Compute continuous opacity values from sunProgress
+function getStarOpacity(sunProgress: number): number {
+  // Stars fade in during dusk (0.73 -> 0.82) and fade out during dawn (0.18 -> 0.27)
+  if (sunProgress >= 0.82 || sunProgress <= 0.18) return 1;
+  if (sunProgress >= 0.73 && sunProgress < 0.82) return (sunProgress - 0.73) / 0.09;
+  if (sunProgress > 0.18 && sunProgress <= 0.27) return 1 - (sunProgress - 0.18) / 0.09;
+  return 0;
+}
+
+function getBoatOpacity(sunProgress: number): number {
+  // Boats visible during day, fade during dusk/dawn
+  if (sunProgress >= 0.25 && sunProgress <= 0.73) return 1;
+  if (sunProgress >= 0.20 && sunProgress < 0.25) return (sunProgress - 0.20) / 0.05;
+  if (sunProgress > 0.73 && sunProgress <= 0.78) return 1 - (sunProgress - 0.73) / 0.05;
+  return 0;
+}
+
+function getOverlayIntensity(sunProgress: number): number {
+  // 0 = no overlay (full day), 1 = full night overlay
+  if (sunProgress >= 0.27 && sunProgress <= 0.73) return 0;
+  if (sunProgress >= 0.82 || sunProgress <= 0.18) return 1;
+  if (sunProgress > 0.73 && sunProgress < 0.82) return (sunProgress - 0.73) / 0.09;
+  if (sunProgress > 0.18 && sunProgress < 0.27) return 1 - (sunProgress - 0.18) / 0.09;
+  return 0;
+}
+
+// Sun arc: visible between sunProgress 0.22 and 0.78
+// At 0.25 (sunrise): right side (east/mountains). At 0.50 (noon): top center. At 0.75 (sunset): left side (west/ocean).
+function getSunPosition(
+  sunProgress: number,
+  W: number,
+  H: number,
+): { x: number; y: number; visible: boolean; color: string } {
+  if (sunProgress < 0.22 || sunProgress > 0.78) {
+    return { x: 0, y: 0, visible: false, color: PALETTE.sun };
+  }
+  // Map 0.22–0.78 to 0–1
+  const t = (sunProgress - 0.22) / 0.56;
+  // x: right (east) to left (west) — reversed because in Santa Monica, east is inland (right), west is ocean (left)
+  const x = W * (0.85 - t * 0.70);
+  // y: parabolic arc — lowest at edges, highest at center (t=0.5)
+  const peakY = H * 0.12;
+  const horizonY = H * 0.50;
+  const y = horizonY - (horizonY - peakY) * (1 - Math.pow(2 * t - 1, 2));
+
+  // Sun color: yellow at midday, orange/red near sunrise/sunset
+  const edgeDist = Math.min(t, 1 - t); // 0 at edges, 0.5 at center
+  const redness = 1 - Math.min(1, edgeDist * 4); // 1 at edges, 0 by 0.25
+  const r = 255;
+  const g = Math.round(238 - redness * 100);
+  const b = Math.round(68 - redness * 40);
+  const color = `rgb(${r},${g},${b})`;
+
+  return { x, y, visible: true, color };
+}
+
+// Moon arc: visible during night phases, peaks at midnight
+function getMoonPosition(
+  sunProgress: number,
+  W: number,
+  H: number,
+): { x: number; y: number; visible: boolean } {
+  // Moon visible when sun is not: progress < 0.22 or > 0.78
+  if (sunProgress >= 0.22 && sunProgress <= 0.78) {
+    return { x: 0, y: 0, visible: false };
+  }
+  // Normalize night progress: 0.78 -> 0, 1.0/0.0 -> 0.5, 0.22 -> 1
+  let nightT: number;
+  if (sunProgress >= 0.78) {
+    nightT = (sunProgress - 0.78) / 0.44; // 0.78->0, 1.0->0.5
+  } else {
+    nightT = (sunProgress + 0.22) / 0.44; // 0.0->0.5, 0.22->1.0
+  }
+  // x: moves left to right across the sky
+  const x = W * (0.15 + nightT * 0.70);
+  // y: parabolic arc peaking at midnight (nightT=0.5)
+  const peakY = H * 0.15;
+  const horizonY = H * 0.50;
+  const y = horizonY - (horizonY - peakY) * (1 - Math.pow(2 * nightT - 1, 2));
+
+  return { x, y, visible: true };
+}
+
 const PALETTE = {
   sky: "#4a90d9",
   skyLight: "#6aace6",
@@ -2370,16 +2508,16 @@ function drawNightStars(
 
 interface HeroBackgroundProps {
   children: React.ReactNode;
-  nightMode?: boolean;
+  sunProgress?: number;
 }
 
 export function HeroBackground({
   children,
-  nightMode = false,
+  sunProgress = 0.5,
 }: HeroBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const nightModeRef = useRef(nightMode);
-  nightModeRef.current = nightMode;
+  const sunProgressRef = useRef(sunProgress);
+  sunProgressRef.current = sunProgress;
   const stateRef = useRef<AnimState>({
     clouds: [],
     birds: [],
@@ -2463,22 +2601,18 @@ export function HeroBackground({
       const W = canvas.width;
       const H = canvas.height;
       const horizonY = snap(H * 0.55);
-      const isNight = nightModeRef.current;
+      const sp = sunProgressRef.current;
+      const starOpacity = getStarOpacity(sp);
+      const boatOpacity = getBoatOpacity(sp);
+      const overlayIntensity = getOverlayIntensity(sp);
 
-      // 1. SKY
+      // 1. SKY — interpolated from keyframes
+      const skyColors = getSkyColors(sp);
       const bandCount = 16;
       for (let b = 0; b < bandCount; b++) {
         const ratio = b / bandCount;
-        const r = isNight
-          ? Math.round(5 + ratio * 10)
-          : Math.round(80 + ratio * 55);
-        const g = isNight
-          ? Math.round(8 + ratio * 17)
-          : Math.round(160 + ratio * 50);
-        const bv = isNight
-          ? Math.round(25 + ratio * 30)
-          : Math.round(235 + ratio * 15);
-        ctx.fillStyle = `rgb(${r},${g},${bv})`;
+        const color = lerpColor(skyColors.top, skyColors.bottom, ratio);
+        ctx.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
         ctx.fillRect(
           0,
           snap((b / bandCount) * horizonY),
@@ -2487,12 +2621,21 @@ export function HeroBackground({
         );
       }
 
-      // 2. STARS & SUN/MOON
-      if (isNight) {
+      // 2. STARS & SUN/MOON — continuous
+      if (starOpacity > 0) {
+        ctx.globalAlpha = starOpacity;
         drawNightStars(ctx, W, H, t);
-        drawMoon(ctx, W * 0.15, H * 0.18, 24, t);
-      } else {
-        drawSun(ctx, W * 0.15, H * 0.18, 24, t);
+        ctx.globalAlpha = 1;
+      }
+
+      const sunPos = getSunPosition(sp, W, H);
+      if (sunPos.visible) {
+        drawSun(ctx, sunPos.x, sunPos.y, 24, t);
+      }
+
+      const moonPos = getMoonPosition(sp, W, H);
+      if (moonPos.visible) {
+        drawMoon(ctx, moonPos.x, moonPos.y, 24, t);
       }
 
       // 3. CLOUDS
@@ -2571,14 +2714,18 @@ export function HeroBackground({
       // 5. OCEAN
       drawOcean(ctx, W, H, horizonY, t);
 
-      // 7. BOATS (on ocean) — daytime only
-      if (!isNight) {
+      // 7. BOATS (on ocean) — fade with sun
+      if (boatOpacity > 0) {
+        ctx.globalAlpha = boatOpacity;
         drawBoats(ctx, W, H, horizonY, t);
+        ctx.globalAlpha = 1;
       }
 
-      // 7b. DOLPHINS & WHALES — daytime only
-      if (!isNight) {
+      // 7b. DOLPHINS & WHALES — fade with sun
+      if (boatOpacity > 0) {
+        ctx.globalAlpha = boatOpacity;
         drawMarineLife(ctx, W, H, horizonY, t);
+        ctx.globalAlpha = 1;
       }
 
       // 10. BEACH
@@ -2615,21 +2762,30 @@ export function HeroBackground({
       // 15. PALM TREES (foreground, last)
       drawPalmTrees(ctx, palmTrees, t);
 
-      // 16. NIGHT MODE — overlay & lights
-      if (isNight) {
+      // 16. NIGHT OVERLAY — continuous intensity
+      if (overlayIntensity > 0) {
         // Darken clouds in sky
-        ctx.fillStyle = "rgba(5, 10, 30, 0.2)";
+        ctx.fillStyle = `rgba(5, 10, 30, ${0.2 * overlayIntensity})`;
         ctx.fillRect(0, 0, W, horizonY);
         // Darken ocean, beach, buildings
-        ctx.fillStyle = "rgba(5, 10, 30, 0.4)";
+        ctx.fillStyle = `rgba(5, 10, 30, ${0.4 * overlayIntensity})`;
         ctx.fillRect(0, horizonY, W, H - horizonY);
-        // Redraw moon and stars on top of overlay
-        drawNightStars(ctx, W, H, t);
-        drawMoon(ctx, W * 0.15, H * 0.18, 24, t);
-        // Redraw only glowing windows & beacons on top so they glow through the darkness
+        // Redraw stars and moon on top of overlay
+        if (starOpacity > 0) {
+          ctx.globalAlpha = starOpacity;
+          drawNightStars(ctx, W, H, t);
+          ctx.globalAlpha = 1;
+        }
+        if (moonPos.visible) {
+          drawMoon(ctx, moonPos.x, moonPos.y, 24, t);
+        }
+        // Redraw glowing windows & beacons with overlay intensity
+        ctx.globalAlpha = overlayIntensity;
         drawCoastalBuildings(ctx, W, H, horizonY, t, true);
         drawPierLights(ctx, deckY, pierLeftX, pierRightX, t);
+        ctx.globalAlpha = 1;
         // Aircraft navigation lights
+        ctx.globalAlpha = overlayIntensity;
         const plane = stateRef.current.airliner;
         const px = snap(plane.x);
         const py = snap(plane.y);
@@ -2647,6 +2803,7 @@ export function HeroBackground({
         }
         // Cabin windows — warm glow
         drawPixelRect(ctx, px + P * 4, py + P, P * 10, P, "#ffeeaa");
+        ctx.globalAlpha = 1;
       }
 
       // Advance animation state

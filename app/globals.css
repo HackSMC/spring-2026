@@ -12,15 +12,72 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html.night-mode {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Win95-style range slider */
+input[type="range"].win95-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  background: transparent;
+}
+
+input[type="range"].win95-slider:focus {
+  outline: none;
+}
+
+/* Track */
+input[type="range"].win95-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: #868a8e;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
+}
+
+input[type="range"].win95-slider::-moz-range-track {
+  height: 4px;
+  background: #868a8e;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
+}
+
+/* Thumb — square, Win95-style */
+input[type="range"].win95-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 11px;
+  height: 20px;
+  background: #c0c0c0;
+  border-top: 2px solid #fff;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+  margin-top: -8px;
+  cursor: pointer;
+}
+
+input[type="range"].win95-slider::-moz-range-thumb {
+  width: 11px;
+  height: 20px;
+  background: #c0c0c0;
+  border-top: 2px solid #fff;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+  border-radius: 0;
+  cursor: pointer;
 }
