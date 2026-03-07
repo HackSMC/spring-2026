@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { Frame, Modal, Button, TitleBar } from "@react95/core";
 import { Computer, McmEarth, Network3, Qfecheck111 } from "@react95/icons";
 import Image from "next/image";
@@ -14,10 +15,11 @@ export default function Home() {
 }
 
 function Hero() {
+  const [nightMode, setNightMode] = useState(false);
   return (
-    <HeroBackground>
+    <HeroBackground nightMode={nightMode}>
       <div>
-        <HeroModal />
+        <HeroModal nightMode={nightMode} onToggleNight={() => setNightMode((n) => !n)} />
         <div className="justify-items-center place-content-center gap-4 grid mt-4">
           <Button
             className="flex items-center gap-2 cursor-pointer"
@@ -50,7 +52,7 @@ function Hero() {
   );
 }
 
-function HeroModal() {
+function HeroModal({ nightMode, onToggleNight }: { nightMode: boolean; onToggleNight: () => void }) {
   return (
     <Modal
       title="Welcome"
@@ -69,7 +71,29 @@ function HeroModal() {
             alert("Hello!");
           }}
         />,
-        <TitleBar.Close key="close" />,
+        <button
+          key="theme"
+          onClick={onToggleNight}
+          style={{
+            height: 14,
+            padding: "0 4px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#c0c0c0",
+            borderTop: "1px solid #ffffff",
+            borderLeft: "1px solid #ffffff",
+            borderRight: "1px solid #808080",
+            borderBottom: "1px solid #808080",
+            cursor: "pointer",
+            fontSize: "9px",
+            fontFamily: "inherit",
+            whiteSpace: "nowrap",
+            color: "#000000",
+          }}
+        >
+          {nightMode ? "Light Mode" : "Dark Mode"}
+        </button>,
       ]}
     >
       <Modal.Content boxShadow="$in" bgColor="$material">
