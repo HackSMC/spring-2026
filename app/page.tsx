@@ -2,7 +2,7 @@
 import { Frame, Modal, Button, TitleBar } from "@react95/core";
 import { Computer, McmEarth, Network3, Qfecheck111 } from "@react95/icons";
 import Image from "next/image";
-import { HackathonBackground } from "./hackathon-background";
+import { HeroBackground } from "./hero-background";
 
 export default function Home() {
   return <Hero />;
@@ -10,7 +10,7 @@ export default function Home() {
 
 function Hero() {
   return (
-    <HackathonBackground>
+    <HeroBackground>
       <div>
         <HeroModal />
         <div className="justify-items-center place-content-center gap-4 grid mt-4">
@@ -41,14 +41,14 @@ function Hero() {
           </div>
         </div>
       </div>
-    </HackathonBackground>
+    </HeroBackground>
   );
 }
 
 function HeroModal() {
   return (
     <Modal
-      title="hackathon.exe"
+      title="Welcome"
       icon={<Computer variant="16x16_4" />}
       dragOptions={{ disabled: true }}
       style={{
@@ -70,7 +70,17 @@ function HeroModal() {
       <Modal.Content boxShadow="$in" bgColor="$material">
         <div className="flex flex-row gap-8 p-2 w-full">
           <Frame bgColor="$material" boxShadow="$out">
-            <Frame h="100%" bgColor="teal" boxShadow="$in" padding="$8">
+            <Frame
+              h="100%"
+              boxShadow="$in"
+              padding="$8"
+              style={{
+                backgroundColor: "#e8ed8f",
+                backgroundImage:
+                  "radial-gradient(circle, #ffffff 2px, transparent 2px)",
+                backgroundSize: "4px 4px",
+              }}
+            >
               <Image
                 src="/logo-main.png"
                 width={180}
@@ -80,8 +90,8 @@ function HeroModal() {
             </Frame>
           </Frame>
           <div className="flex-1 place-content-center grid">
-            <div className="font-bold text-7xl">HackSMC</div>
-            <div className="mt-8 text-4xl text-center">May 9–10, 2026</div>
+            <div className="font-bold text-6xl">May 9–10, 2026</div>
+            <div className="mt-8 text-4xl text-center">Bundy Campus</div>
           </div>
         </div>
       </Modal.Content>
