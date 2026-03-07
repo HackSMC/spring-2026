@@ -14,7 +14,13 @@ Keep code as close as possible to where it is used. If a component, hook, or uti
 - `app/(root)/apply/components/`: Host all components belonging to the Apply page.
 - `app/(root)/sponsors/hooks/`: Host all hooks belonging to the Sponsors page.
 
-## 2. Shared Code (The "Rule of Three")
+## 2. Naming Convention (Kebab-Case)
+
+All component files and directories must use **kebab-case** (lowercase with hyphens). This ensures consistency and prevents issues with case-sensitive file systems.
+
+- **Example:** `user-profile-card.tsx` instead of `UserProfileCard.tsx` or `user_profile_card.tsx`.
+
+## 3. Shared Code (The "Rule of Three")
 
 If a component, hook, or utility is used in **more than three pages or features**, it must be moved to the global directories to avoid duplication.
 
@@ -24,7 +30,8 @@ If a component, hook, or utility is used in **more than three pages or features*
 
 ### Quick Reference
 
-| Scope                 | Location                             |
-| :-------------------- | :----------------------------------- |
-| **Page-specific**     | `app/<page>/components/`             |
-| **Shared (3+ pages)** | `/components/`, `/hooks/`, `/utils/` |
+| Scope                 | Location                               |
+| :-------------------- | :------------------------------------- |
+| **Page-specific**     | `app/<page>/components/`               |
+| **Shared (3+ pages)** | `/components/`, `/hooks/`, `/utils/`   |
+| **Naming Style**      | `kebab-case` (e.g., `main-button.tsx`) |
