@@ -2,10 +2,15 @@
 import { Frame, Modal, Button, TitleBar } from "@react95/core";
 import { Computer, McmEarth, Network3, Qfecheck111 } from "@react95/icons";
 import Image from "next/image";
-import { HeroBackground } from "./hero-background";
+import { HeroBackground, PALETTE } from "./hero-background";
 
 export default function Home() {
-  return <Hero />;
+  return (
+    <>
+      <Hero />
+      <About />
+    </>
+  );
 }
 
 function Hero() {
@@ -96,5 +101,34 @@ function HeroModal() {
         </div>
       </Modal.Content>
     </Modal>
+  );
+}
+
+function About() {
+  return (
+    <div
+      style={{ background: PALETTE.sand }}
+      className="place-content-center grid pt-8 pb-24 w-full text-white"
+    >
+      <div className="w-200 text-xl text-center container">
+        HackSMC is Santa Monica College’s hackathon, organized by community
+        college students, for community college students. Over two exhilarating
+        days, we bring together builders to collaborate, innovate, and turn
+        ambitious ideas into reality. Participants get the chance to tackle
+        multiple tracks, connect with industry leaders, and showcase their
+        skills in a high-energy environment built specifically for our
+        community.
+      </div>
+    </div>
+  );
+}
+
+function Faq() {
+  return (
+    <Frame
+      bgColor="$material"
+      boxShadow="$out"
+      style={{ height: "400px" }}
+    ></Frame>
   );
 }

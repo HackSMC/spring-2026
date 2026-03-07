@@ -30,42 +30,6 @@ export function NavBar() {
       </a>
 
       <a
-        href="#schedule"
-        className="group flex flex-col items-center gap-1 px-3 py-2 w-[72px] cursor-pointer select-none"
-      >
-        <Winfile3 variant="32x32_4" />
-        <span
-          style={{
-            fontSize: "11px",
-            whiteSpace: "nowrap",
-            color: "white",
-            textShadow: "1px 1px 1px black",
-            padding: "0 2px",
-          }}
-        >
-          Schedule
-        </span>
-      </a>
-
-      <a
-        href="#sponsors"
-        className="group flex flex-col items-center gap-1 px-3 py-2 w-[72px] cursor-pointer select-none"
-      >
-        <Mmsys113 variant="32x32_4" />
-        <span
-          style={{
-            fontSize: "11px",
-            whiteSpace: "nowrap",
-            color: "white",
-            textShadow: "1px 1px 1px black",
-            padding: "0 2px",
-          }}
-        >
-          Sponsors
-        </span>
-      </a>
-
-      <a
         href="#faq"
         className="group flex flex-col items-center gap-1 px-3 py-2 w-[72px] cursor-pointer select-none"
       >
@@ -80,24 +44,6 @@ export function NavBar() {
           }}
         >
           FAQ
-        </span>
-      </a>
-
-      <a
-        href="#register"
-        className="group flex flex-col items-center gap-1 px-3 py-2 w-[72px] cursor-pointer select-none"
-      >
-        <Write1 variant="32x32_4" />
-        <span
-          style={{
-            fontSize: "11px",
-            whiteSpace: "nowrap",
-            color: "white",
-            textShadow: "1px 1px 1px black",
-            padding: "0 2px",
-          }}
-        >
-          Register
         </span>
       </a>
     </nav>
