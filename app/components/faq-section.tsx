@@ -63,16 +63,11 @@ function Accordion({ q, a }: { q: string; a: string }) {
 
 export function FaqSection() {
   return (
-    <div
-      id="faq"
-      className="w-full"
-      style={{ backgroundColor: "#008080", position: "relative" }}
-    >
-      <BundyCampusMapsModal style={{ top: 10, left: "1vw" }} />
-      <MyComputerModal style={{ top: 200, right: "4vw" }} />
+    <div id="faq" className="z-10 relative w-full">
+      <BundyCampusMapsModal style={{ top: 10, left: "2vw" }} />
 
       {/* Center FAQ — padded so it never overlaps the absolute modals */}
-      <div className="mx-auto py-24 max-w-2xl">
+      <div className="mx-auto py-24 max-w-xl min-h-160">
         <Header icon={<QuestionBubble />} subtitle="Frequently Asked Questions">
           FAQ
         </Header>

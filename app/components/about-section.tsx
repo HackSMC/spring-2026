@@ -89,15 +89,15 @@ export function AboutSection() {
   }, []);
 
   return (
-    <Frame bgColor="teal" className="relative w-full">
+    <Frame className="z-10 relative w-full">
       <div
         id="about"
         ref={sectionRef}
-        className="flex justify-center items-center py-32"
+        className="flex justify-center items-center py-48"
       >
-        <div className="flex flex-col gap-6 w-full max-w-2xl">
+        <div className="flex flex-col gap-6 w-full max-w-xl">
           <p
-            className="text-white text-lg text-center leading-relaxed"
+            className="text-white text-xl text-center leading-relaxed"
             style={{ fontFamily: "MS Sans Serif, Arial, sans-serif" }}
           >
             HackSMC is Santa Monica College's hackathon, organized by community

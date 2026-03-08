@@ -15,7 +15,7 @@ export function HeroSection({ sunProgress }: { sunProgress: number }) {
   return (
     <HeroBackground sunProgress={sunProgress}>
       <div
-        className="flex flex-col items-center"
+        className="flex flex-col items-center mb-[20vh]"
         style={{
           opacity: mounted ? 1 : 0,
           transform: mounted ? "translateY(0)" : "translateY(16px)",
@@ -38,7 +38,7 @@ export function HeroSection({ sunProgress }: { sunProgress: number }) {
               style={{ fontSize: "1.25rem" }}
             >
               <Network3 className="w-5 h-5" />
-              Apply as a Volunteer/Organizer
+              Become an Organizer
             </Button>
 
             <Button
@@ -46,7 +46,7 @@ export function HeroSection({ sunProgress }: { sunProgress: number }) {
               style={{ fontSize: "1.25rem" }}
             >
               <Qfecheck111 className="w-5 h-5" />
-              Apply as a Judge
+              Become a Judge
             </Button>
           </div>
         </div>
@@ -93,9 +93,9 @@ function HeroModal() {
               />
             </Frame>
           </Frame>
-          <div className="flex-1 place-content-center grid">
-            <div className="font-bold text-6xl">May 9–10, 2026</div>
-            <div className="mt-8 text-4xl text-center">Bundy Campus</div>
+          <div className="flex flex-col flex-1 justify-center items-center">
+            <div className="font-bold text-6xl text-center">May 9–10, 2026</div>
+            <div className="mt-6 text-[#444] text-4xl">Bundy Campus</div>
           </div>
         </div>
       </Modal.Content>

@@ -7,6 +7,7 @@ import { TaskbarClock } from "./components/taskbar-clock";
 import { useSunCycle } from "./hooks/use-sun-cycle";
 import { FaqSection } from "./components/faq-section";
 import { WaveTransition } from "./components/wave-transition";
+import { DitheredOverlay } from "./components/dithered-overlay";
 
 export default function Home() {
   const {
@@ -54,8 +55,12 @@ export default function Home() {
     <>
       <HeroSection sunProgress={effectiveSunProgress} />
       <WaveTransition />
-      <AboutSection />
-      <FaqSection />
+      <div className="relative bg-gradient-to-b from-[#008080] to-[#004C98]">
+        <DitheredOverlay />
+        <AboutSection />
+        <FaqSection />
+      </div>
+
       <TaskbarClock
         currentTime={currentTime}
         realSunProgress={realSunProgress}
