@@ -6,10 +6,6 @@ import { BundyCampusMapsModal, MyComputerModal } from "./modals";
 
 const faqs = [
   {
-    q: "What is HackSMC?",
-    a: "HackSMC is a hackathon open to community college students. Build projects, meet mentors, win prizes, and enjoy free food & swag — all in one day.",
-  },
-  {
     q: "Who can participate?",
     a: "Any currently enrolled community college student is welcome to join. You can come solo or with a team of up to 4 people.",
   },
@@ -76,15 +72,7 @@ export function FaqSection() {
       <MyComputerModal style={{ top: 200, right: "4vw" }} />
 
       {/* Center FAQ — padded so it never overlaps the absolute modals */}
-      <div
-        className="mx-auto py-16"
-        style={{
-          maxWidth: 660,
-          paddingLeft: 16,
-          paddingRight: 16,
-          minHeight: 680,
-        }}
-      >
+      <div className="mx-auto py-24 max-w-2xl">
         <Header icon={<QuestionBubble />} subtitle="Frequently Asked Questions">
           FAQ
         </Header>
