@@ -24,3 +24,19 @@ export function DitheredOverlay() {
     />
   );
 }
+
+export function SolidDitheredOverlay() {
+  return (
+    <div
+      style={{
+        position: "fixed", // changed from absolute → fixed for full viewport coverage
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 10,
+        backgroundImage: bgImage,
+        backgroundRepeat: "repeat",
+        backgroundSize: "4px 4px",
+      }}
+    />
+  );
+}

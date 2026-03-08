@@ -93,7 +93,7 @@ export function AboutSection() {
       <div
         id="about"
         ref={sectionRef}
-        className="flex justify-center items-center py-48"
+        className="flex justify-center items-center py-36"
       >
         <div className="flex flex-col gap-6 w-full max-w-xl">
           <p

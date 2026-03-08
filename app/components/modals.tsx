@@ -7,7 +7,7 @@ export function SMCCampusModal({ style }: { style?: React.CSSProperties }) {
   return (
     <div style={{ position: "absolute", width: 250, ...style }}>
       <Modal
-        title="SMC — Bundy Campus"
+        title="SMC — Main Campus"
         icon={<FileFind2 variant="16x16_4" />}
         titleBarOptions={[]}
         dragOptions={{ defaultPosition: { x: 0, y: 0 } }}
