@@ -2850,7 +2850,7 @@ export function HeroBackground({
   }, []);
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative h-[120vh] overflow-hidden">
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"

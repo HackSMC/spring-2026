@@ -5,8 +5,8 @@ import { AboutSection } from "./components/about-section";
 import { HeroSection } from "./components/hero-section";
 import { TaskbarClock } from "./components/taskbar-clock";
 import { useSunCycle } from "./hooks/use-sun-cycle";
-import { WaterlineTransition } from "./components/waterline-transition";
 import { FaqSection } from "./components/faq-section";
+import { WaveTransition } from "./components/wave-transition";
 
 export default function Home() {
   const {
@@ -53,6 +53,7 @@ export default function Home() {
   return (
     <>
       <HeroSection sunProgress={effectiveSunProgress} />
+      <WaveTransition />
       <AboutSection />
       <FaqSection />
       <TaskbarClock
