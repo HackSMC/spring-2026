@@ -2,6 +2,19 @@ import { useEffect, useRef } from "react";
 
 const PIXEL = 4;
 
+// Seeded PRNG (mulberry32) — produces the same "random" sequence for a given
+// seed so star positions stay consistent frame-to-frame, but look scattered at
+// every window size (unlike modular arithmetic which creates lattice patterns).
+function mulberry32(seed: number) {
+  return function () {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 // ─── SKY COLOR KEYFRAMES ─────────────────────────────────────────────────────
 // Each entry defines a progress value (0.0–1.0) and the RGB colors for the
 // top of the sky and the horizon. The draw loop interpolates between these.
@@ -12,13 +25,15 @@ interface SkyKeyframe {
 }
 const SKY_KEYFRAMES: SkyKeyframe[] = [
   { progress: 0.0,  top: [5, 8, 25],       bottom: [15, 25, 55] },
+  { progress: 0.18, top: [5, 8, 25],       bottom: [15, 25, 55] },
   { progress: 0.22, top: [25, 30, 80],      bottom: [180, 100, 80] },
   { progress: 0.25, top: [60, 120, 200],    bottom: [240, 160, 100] },
   { progress: 0.40, top: [80, 160, 235],    bottom: [135, 210, 250] },
   { progress: 0.50, top: [80, 160, 235],    bottom: [135, 210, 250] },
   { progress: 0.73, top: [80, 155, 230],    bottom: [130, 200, 240] },
   { progress: 0.75, top: [60, 80, 160],     bottom: [240, 120, 60] },
-  { progress: 0.80, top: [20, 25, 70],      bottom: [120, 50, 80] },
+  { progress: 0.78, top: [15, 18, 50],      bottom: [50, 25, 45] },
+  { progress: 0.82, top: [5, 8, 25],        bottom: [15, 25, 55] },
   { progress: 1.0,  top: [5, 8, 25],        bottom: [15, 25, 55] },
 ];
 
@@ -130,8 +145,8 @@ function getMoonPosition(
   } else {
     nightT = (sunProgress + 0.22) / 0.44; // 0.0->0.5, 0.22->1.0
   }
-  // x: moves left to right across the sky
-  const x = W * (0.15 + nightT * 0.70);
+  // x: moves right to left across the sky (east to west)
+  const x = W * (0.85 - nightT * 0.70);
   // y: parabolic arc peaking at midnight (nightT=0.5)
   const peakY = H * 0.15;
   const horizonY = H * 0.50;
@@ -351,8 +366,8 @@ function drawSun(
   // Animated rays — 12 rays that rotate slowly and pulse in length
   const rayCount = 12;
   for (let i = 0; i < rayCount; i++) {
-    const angle = (i / rayCount) * Math.PI * 2 + t * 0.008;
-    const pulse = Math.sin(t * 0.04 + i * 0.8) * 0.3 + 1;
+    const angle = (i / rayCount) * Math.PI * 2 + t * 0.002;
+    const pulse = Math.sin(t * 0.01 + i * 0.8) * 0.3 + 1;
     const innerR = r + PIXEL * 2;
     const outerR = innerR + PIXEL * (3 + pulse * 2);
     // Draw ray as a series of pixel dots along the line
@@ -366,7 +381,7 @@ function drawSun(
   }
 
   // Outer glow ring — pulsing
-  const glowR = r + PIXEL + Math.sin(t * 0.03) * PIXEL;
+  const glowR = r + PIXEL + Math.sin(t * 0.008) * PIXEL;
   for (let a = 0; a < Math.PI * 2; a += 0.18) {
     const gx = snap(cx + Math.cos(a) * glowR);
     const gy = snap(cy + Math.sin(a) * glowR);
@@ -399,10 +414,11 @@ function drawStars(
   H: number,
   t: number,
 ): void {
+  const rng = mulberry32(42);
   for (let i = 0; i < 30; i++) {
-    const sx = (i * 137 + 50) % W;
-    const sy = (i * 73 + 20) % (H * 0.45);
-    if (Math.sin(t * 0.002 + i * 1.3) > 0.3) {
+    const sx = snap(rng() * W);
+    const sy = snap(rng() * H * 0.45);
+    if (Math.sin(t * 0.0005 + i * 1.3) > 0.3) {
       drawPixelRect(ctx, sx, sy, PIXEL, PIXEL, PALETTE.star);
     }
   }
@@ -669,7 +685,7 @@ function drawCoastalBuildings(
                   : [PALETTE.buildingWindowCool, PALETTE.buildingWindowDim];
 
             const doesFlicker = seed % 20 === 0;
-            const flickerSpeed = 0.01 + (seed % 13) * 0.005;
+            const flickerSpeed = 0.003 + (seed % 13) * 0.0015;
             const flickerPhase = (seed % 97) * 0.37;
 
             for (
@@ -710,7 +726,7 @@ function drawCoastalBuildings(
             }
 
             if (isTower) {
-              const beaconOn = Math.sin(t * 0.05 + buildingIdx * 3.1) > 0;
+              const beaconOn = Math.sin(t * 0.012 + buildingIdx * 3.1) > 0;
               drawPixelRect(
                 ctx,
                 cx + Math.floor(bw / 2) - PIXEL / 2,
@@ -772,7 +788,7 @@ function drawOcean(
     for (let i = 0; i < count; i++) {
       const baseY = horizonY + ((i * 71 + 30) % ((H - horizonY) * ySpread));
       const waveX = snap(
-        ((i * 193 + t * speed + Math.sin(t * 0.01 + i) * 20) % (W + 120)) - 20,
+        ((i * 193 + t * speed + Math.sin(t * 0.003 + i) * 20) % (W + 120)) - 20,
       );
       const waveW = snap(minW + ((i * 37) % (maxW - minW)));
       drawPixelRect(ctx, waveX, snap(baseY), waveW, PIXEL * 1, color);
@@ -911,7 +927,11 @@ function drawPier(
 
   // Support pylons below deck
   for (let x = pierLeftX; x <= pierRightX; x += PIXEL * 10) {
-    const pylonBottom = snap(pierYBase + PIXEL * 4);
+    const xFraction = (x - pierLeftX) / (pierRightX - pierLeftX || 1);
+    const maxDepth = PIXEL * 4;
+    const minDepth = PIXEL * 1;
+    const depth = maxDepth - xFraction * (maxDepth - minDepth);
+    const pylonBottom = snap(pierYBase + depth);
     drawPixelRect(
       ctx,
       x,
@@ -1060,21 +1080,21 @@ function drawBoats(
     {
       xPct: 0.02,
       yPct: 0.1,
-      bobSpeed: 0.03,
+      bobSpeed: 0.008,
       sailColor: PALETTE.boatSail,
       small: false,
     },
     {
       xPct: 0.08,
       yPct: 0.3,
-      bobSpeed: 0.025,
+      bobSpeed: 0.006,
       sailColor: PALETTE.umbrellaRed,
       small: false,
     },
     {
       xPct: 0.62,
       yPct: 0.05,
-      bobSpeed: 0.02,
+      bobSpeed: 0.005,
       sailColor: PALETTE.boatSail,
       small: true,
     },
@@ -1147,7 +1167,7 @@ function drawBoats(
   // --- SPEEDBOAT (near pier, small for depth) ---
   {
     const bx = snap(W * 0.68);
-    const by = snap(horizonY + oceanH * 0.08 + Math.sin(t * 0.04) * P);
+    const by = snap(horizonY + oceanH * 0.08 + Math.sin(t * 0.01) * P);
     const edgeX = getActualBeachEdge(by, W, H, horizonY);
     const s = Math.round(P * 0.5);
     if (bx + s * 12 < edgeX) {
@@ -1163,7 +1183,7 @@ function drawBoats(
   // --- KAYAK (small, narrow, person paddling) ---
   {
     const bx = snap(W * 0.04);
-    const by = snap(horizonY + oceanH * 0.55 + Math.sin(t * 0.035 + 2.5) * P);
+    const by = snap(horizonY + oceanH * 0.55 + Math.sin(t * 0.009 + 2.5) * P);
     const edgeX = getActualBeachEdge(by, W, H, horizonY);
     if (bx + P * 14 < edgeX) {
       // Kayak body — long and narrow
@@ -1179,7 +1199,7 @@ function drawBoats(
       // Person
       drawPixelRect(ctx, bx + P * 6, by, P * 2, P * 2, PALETTE.skinTone);
       // Paddle
-      const paddleSide = Math.sin(t * 0.06) > 0 ? -P * 2 : P * 10;
+      const paddleSide = Math.sin(t * 0.015) > 0 ? -P * 2 : P * 10;
       drawPixelRect(ctx, bx + paddleSide, by + P, P * 2, P, PALETTE.pierPylon);
     }
   }
@@ -1203,7 +1223,7 @@ function drawMarineLife(
     const edgeX = getActualBeachEdge(baseY, W, H, horizonY);
     if (baseX + P * 14 < edgeX) {
       // Very slow cycle — only visible ~15% of the time
-      const raw = Math.sin(t * 0.012);
+      const raw = Math.sin(t * 0.003);
       const cycle = raw > 0.7 ? (raw - 0.7) / 0.3 : -1; // -1 = hidden
 
       // Splash when entering/exiting
@@ -1359,7 +1379,7 @@ function drawMarineLife(
     const edgeX = getActualBeachEdge(baseY, W, H, horizonY);
     if (baseX + P * 24 < edgeX) {
       // Very slow cycle — only surfaces ~10% of the time
-      const raw = Math.sin(t * 0.008 + 2.0);
+      const raw = Math.sin(t * 0.002 + 2.0);
       const cycle = raw > 0.8 ? (raw - 0.8) / 0.2 : -1;
 
       // Splash — big wall of spray when breaching
@@ -2354,7 +2374,7 @@ function drawPierLights(
       PALETTE.pierRail,
     );
     // Light glow — flickers
-    if (Math.sin(t * 0.04 + i * 2.1) > -0.2) {
+    if (Math.sin(t * 0.01 + i * 2.1) > -0.2) {
       drawPixelRect(
         ctx,
         snap(x),
@@ -2418,7 +2438,7 @@ function drawPalmTrees(
   t: number,
 ): void {
   palmTrees.forEach((tree) => {
-    const swayOffset = Math.sin(t * 0.02 + tree.swayPhase) * PIXEL * 1.5;
+    const swayOffset = Math.sin(t * 0.005 + tree.swayPhase) * PIXEL * 1.5;
     drawPalmTree(ctx, tree.x, tree.y, tree.height, swayOffset, tree.scale);
   });
 }
@@ -2434,7 +2454,7 @@ function drawMoon(
   const cy = snap(y);
 
   // Moon glow — subtle pulse
-  const glowR = r + PIXEL * 3 + Math.sin(t * 0.02) * PIXEL;
+  const glowR = r + PIXEL * 3 + Math.sin(t * 0.005) * PIXEL;
   for (let a = 0; a < Math.PI * 2; a += 0.12) {
     const gx = snap(cx + Math.cos(a) * glowR);
     const gy = snap(cy + Math.sin(a) * glowR);
@@ -2452,9 +2472,9 @@ function drawMoon(
   }
 
   // Crescent shadow — carve out part of the circle to create crescent shape
-  const offsetX = PIXEL * 5;
-  const offsetY = -PIXEL * 2;
-  const shadowR = r - PIXEL;
+  const offsetX = PIXEL * 4;
+  const offsetY = 0;
+  const shadowR = r - PIXEL * 0.5;
   for (let dy = -r; dy <= r; dy += PIXEL) {
     for (let dx = -r; dx <= r; dx += PIXEL) {
       const distFromMoon = dx * dx + dy * dy;
@@ -2477,22 +2497,23 @@ function drawNightStars(
   H: number,
   t: number,
 ): void {
+  const rng = mulberry32(123);
   // Many stars with twinkling
   for (let i = 0; i < 80; i++) {
-    const sx = (i * 137 + 50) % W;
-    const sy = (i * 73 + 20) % (H * 0.5);
-    const twinkle = Math.sin(t * 0.03 + i * 1.7);
+    const sx = snap(rng() * W);
+    const sy = snap(rng() * H * 0.5);
+    const twinkle = Math.sin(t * 0.008 + i * 1.7);
     if (twinkle > -0.3) {
       const brightness = Math.round(180 + twinkle * 75);
       ctx.fillStyle = `rgb(${brightness},${brightness},${Math.min(255, brightness + 30)})`;
-      ctx.fillRect(snap(sx), snap(sy), PIXEL, PIXEL);
+      ctx.fillRect(sx, sy, PIXEL, PIXEL);
     }
   }
   // A few brighter stars with cross pattern
   for (let i = 0; i < 10; i++) {
-    const sx = snap((i * 211 + 100) % W);
-    const sy = snap((i * 97 + 15) % (H * 0.45));
-    const twinkle = Math.sin(t * 0.025 + i * 2.1);
+    const sx = snap(rng() * W);
+    const sy = snap(rng() * H * 0.45);
+    const twinkle = Math.sin(t * 0.006 + i * 2.1);
     if (twinkle > 0) {
       drawPixelRect(ctx, sx, sy, PIXEL, PIXEL, "#ffffff");
       if (twinkle > 0.5) {
@@ -2765,10 +2786,10 @@ export function HeroBackground({
       // 16. NIGHT OVERLAY — continuous intensity
       if (overlayIntensity > 0) {
         // Darken clouds in sky
-        ctx.fillStyle = `rgba(5, 10, 30, ${0.2 * overlayIntensity})`;
+        ctx.fillStyle = `rgba(5, 10, 30, ${0.4 * overlayIntensity})`;
         ctx.fillRect(0, 0, W, horizonY);
         // Darken ocean, beach, buildings
-        ctx.fillStyle = `rgba(5, 10, 30, ${0.4 * overlayIntensity})`;
+        ctx.fillStyle = `rgba(5, 10, 30, ${0.55 * overlayIntensity})`;
         ctx.fillRect(0, horizonY, W, H - horizonY);
         // Redraw stars and moon on top of overlay
         if (starOpacity > 0) {
@@ -2797,7 +2818,7 @@ export function HeroBackground({
         // Tail light — white
         drawPixelRect(ctx, px - P, py - P * 2, P, P, "#ffffff");
         // Anti-collision beacon — flashing red
-        if (Math.sin(t * 0.15) > 0) {
+        if (Math.sin(t * 0.04) > 0) {
           drawPixelRect(ctx, px + P * 9, py, P, P, "#ff3333");
           drawPixelRect(ctx, px + P * 9, py + P * 3, P, P, "#ff3333");
         }
