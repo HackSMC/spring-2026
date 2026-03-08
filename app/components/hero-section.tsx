@@ -2,15 +2,26 @@ import { Frame, Modal, Button, TitleBar } from "@react95/core";
 import { Computer, McmEarth, Network3, Qfecheck111 } from "@react95/icons";
 import { HeroBackground } from "./hero-background";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 
-export function HeroSection({
-  sunProgress,
-}: {
-  sunProgress: number;
-}) {
+export function HeroSection({ sunProgress }: { sunProgress: number }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <HeroBackground sunProgress={sunProgress}>
-      <div>
+      <div
+        className="flex flex-col items-center"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(16px)",
+          transition: "opacity 0.6s ease, transform 0.6s ease",
+        }}
+      >
         <HeroModal />
         <div className="justify-items-center place-content-center gap-4 grid mt-4">
           <Button
@@ -57,12 +68,7 @@ function HeroModal() {
         top: "auto",
       }}
       titleBarOptions={[
-        <TitleBar.Help
-          key="help"
-          onClick={() => {
-            alert("Hello!");
-          }}
-        />,
+        <TitleBar.Help key="help" onClick={() => alert("Hello!")} />,
       ]}
     >
       <Modal.Content boxShadow="$in" bgColor="$material">

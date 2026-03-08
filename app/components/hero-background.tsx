@@ -24,17 +24,17 @@ interface SkyKeyframe {
   bottom: [number, number, number];
 }
 const SKY_KEYFRAMES: SkyKeyframe[] = [
-  { progress: 0.0,  top: [5, 8, 25],       bottom: [15, 25, 55] },
-  { progress: 0.18, top: [5, 8, 25],       bottom: [15, 25, 55] },
-  { progress: 0.22, top: [25, 30, 80],      bottom: [180, 100, 80] },
-  { progress: 0.25, top: [60, 120, 200],    bottom: [240, 160, 100] },
-  { progress: 0.40, top: [80, 160, 235],    bottom: [135, 210, 250] },
-  { progress: 0.50, top: [80, 160, 235],    bottom: [135, 210, 250] },
-  { progress: 0.73, top: [80, 155, 230],    bottom: [130, 200, 240] },
-  { progress: 0.75, top: [60, 80, 160],     bottom: [240, 120, 60] },
-  { progress: 0.78, top: [15, 18, 50],      bottom: [50, 25, 45] },
-  { progress: 0.82, top: [5, 8, 25],        bottom: [15, 25, 55] },
-  { progress: 1.0,  top: [5, 8, 25],        bottom: [15, 25, 55] },
+  { progress: 0.0, top: [5, 8, 25], bottom: [15, 25, 55] },
+  { progress: 0.18, top: [5, 8, 25], bottom: [15, 25, 55] },
+  { progress: 0.22, top: [25, 30, 80], bottom: [180, 100, 80] },
+  { progress: 0.25, top: [60, 120, 200], bottom: [240, 160, 100] },
+  { progress: 0.4, top: [80, 160, 235], bottom: [135, 210, 250] },
+  { progress: 0.5, top: [80, 160, 235], bottom: [135, 210, 250] },
+  { progress: 0.73, top: [80, 155, 230], bottom: [130, 200, 240] },
+  { progress: 0.75, top: [60, 80, 160], bottom: [240, 120, 60] },
+  { progress: 0.78, top: [15, 18, 50], bottom: [50, 25, 45] },
+  { progress: 0.82, top: [5, 8, 25], bottom: [15, 25, 55] },
+  { progress: 1.0, top: [5, 8, 25], bottom: [15, 25, 55] },
 ];
 
 function lerpColor(
@@ -50,9 +50,10 @@ function lerpColor(
   ];
 }
 
-function getSkyColors(
-  sunProgress: number,
-): { top: [number, number, number]; bottom: [number, number, number] } {
+function getSkyColors(sunProgress: number): {
+  top: [number, number, number];
+  bottom: [number, number, number];
+} {
   const p = Math.max(0, Math.min(1, sunProgress));
   // Find the two surrounding keyframes
   let lo = SKY_KEYFRAMES[0];
@@ -76,16 +77,20 @@ function getSkyColors(
 function getStarOpacity(sunProgress: number): number {
   // Stars fade in during dusk (0.73 -> 0.82) and fade out during dawn (0.18 -> 0.27)
   if (sunProgress >= 0.82 || sunProgress <= 0.18) return 1;
-  if (sunProgress >= 0.73 && sunProgress < 0.82) return (sunProgress - 0.73) / 0.09;
-  if (sunProgress > 0.18 && sunProgress <= 0.27) return 1 - (sunProgress - 0.18) / 0.09;
+  if (sunProgress >= 0.73 && sunProgress < 0.82)
+    return (sunProgress - 0.73) / 0.09;
+  if (sunProgress > 0.18 && sunProgress <= 0.27)
+    return 1 - (sunProgress - 0.18) / 0.09;
   return 0;
 }
 
 function getBoatOpacity(sunProgress: number): number {
   // Boats visible during day, fade during dusk/dawn
   if (sunProgress >= 0.25 && sunProgress <= 0.73) return 1;
-  if (sunProgress >= 0.20 && sunProgress < 0.25) return (sunProgress - 0.20) / 0.05;
-  if (sunProgress > 0.73 && sunProgress <= 0.78) return 1 - (sunProgress - 0.73) / 0.05;
+  if (sunProgress >= 0.2 && sunProgress < 0.25)
+    return (sunProgress - 0.2) / 0.05;
+  if (sunProgress > 0.73 && sunProgress <= 0.78)
+    return 1 - (sunProgress - 0.73) / 0.05;
   return 0;
 }
 
@@ -93,8 +98,10 @@ function getOverlayIntensity(sunProgress: number): number {
   // 0 = no overlay (full day), 1 = full night overlay
   if (sunProgress >= 0.27 && sunProgress <= 0.73) return 0;
   if (sunProgress >= 0.82 || sunProgress <= 0.18) return 1;
-  if (sunProgress > 0.73 && sunProgress < 0.82) return (sunProgress - 0.73) / 0.09;
-  if (sunProgress > 0.18 && sunProgress < 0.27) return 1 - (sunProgress - 0.18) / 0.09;
+  if (sunProgress > 0.73 && sunProgress < 0.82)
+    return (sunProgress - 0.73) / 0.09;
+  if (sunProgress > 0.18 && sunProgress < 0.27)
+    return 1 - (sunProgress - 0.18) / 0.09;
   return 0;
 }
 
@@ -111,10 +118,10 @@ function getSunPosition(
   // Map 0.22–0.78 to 0–1
   const t = (sunProgress - 0.22) / 0.56;
   // x: right (east) to left (west) — reversed because in Santa Monica, east is inland (right), west is ocean (left)
-  const x = W * (0.85 - t * 0.70);
+  const x = W * (0.85 - t * 0.7);
   // y: parabolic arc — lowest at edges, highest at center (t=0.5)
   const peakY = H * 0.12;
-  const horizonY = H * 0.50;
+  const horizonY = H * 0.5;
   const y = horizonY - (horizonY - peakY) * (1 - Math.pow(2 * t - 1, 2));
 
   // Sun color: yellow at midday, orange/red near sunrise/sunset
@@ -146,10 +153,10 @@ function getMoonPosition(
     nightT = (sunProgress + 0.22) / 0.44; // 0.0->0.5, 0.22->1.0
   }
   // x: moves right to left across the sky (east to west)
-  const x = W * (0.85 - nightT * 0.70);
+  const x = W * (0.85 - nightT * 0.7);
   // y: parabolic arc peaking at midnight (nightT=0.5)
   const peakY = H * 0.15;
-  const horizonY = H * 0.50;
+  const horizonY = H * 0.5;
   const y = horizonY - (horizonY - peakY) * (1 - Math.pow(2 * nightT - 1, 2));
 
   return { x, y, visible: true };

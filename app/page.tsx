@@ -5,6 +5,8 @@ import { AboutSection } from "./components/about-section";
 import { HeroSection } from "./components/hero-section";
 import { TaskbarClock } from "./components/taskbar-clock";
 import { useSunCycle } from "./hooks/use-sun-cycle";
+import { WaterlineTransition } from "./components/waterline-transition";
+import { FaqSection } from "./components/faq-section";
 
 export default function Home() {
   const {
@@ -37,7 +39,10 @@ export default function Home() {
     const g = Math.round(dayBg[1] + (nightBg[1] - dayBg[1]) * intensity);
     const b = Math.round(dayBg[2] + (nightBg[2] - dayBg[2]) * intensity);
 
-    document.documentElement.style.setProperty("--background", `rgb(${r},${g},${b})`);
+    document.documentElement.style.setProperty(
+      "--background",
+      `rgb(${r},${g},${b})`,
+    );
     document.documentElement.style.setProperty(
       "--foreground",
       isNight ? "#ededed" : "#171717",
@@ -49,6 +54,7 @@ export default function Home() {
     <>
       <HeroSection sunProgress={effectiveSunProgress} />
       <AboutSection />
+      <FaqSection />
       <TaskbarClock
         currentTime={currentTime}
         realSunProgress={realSunProgress}
