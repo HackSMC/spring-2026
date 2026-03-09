@@ -1,8 +1,10 @@
 export function Header({
+  className,
   icon,
   children,
   subtitle,
 }: {
+  className?: string;
   icon: React.ReactNode;
   children: string;
   subtitle: string;

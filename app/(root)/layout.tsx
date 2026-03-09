@@ -1,6 +1,6 @@
-import { SmcBlueBackground } from "@/components/smc-blue-background";
 import { Metadata } from "next";
-import { SolidDitheredOverlay } from "../(landing-page)/components/dithered-overlay";
+import { SolidDitheredOverlay } from "../../components/dithered-overlay";
+import { TealBackground } from "@/components/teal-background";
 
 export const metadata: Metadata = {
   title: "HackSMC",
@@ -13,11 +13,10 @@ export default function ApplyLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
-        <SolidDitheredOverlay />
-        <SmcBlueBackground>{children}</SmcBlueBackground>
-      </body>
-    </html>
+    <>
+      <TealBackground />
+      <SolidDitheredOverlay />
+      <div className="z-20 w-full h-full min-h-screen">{children}</div>
+    </>
   );
 }

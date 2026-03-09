@@ -7,7 +7,7 @@ import { TaskbarClock } from "./components/taskbar-clock";
 import { useSunCycle } from "./hooks/use-sun-cycle";
 import { FaqSection } from "./components/faq-section";
 import { WaveTransition } from "./components/wave-transition";
-import { DitheredOverlay } from "./components/dithered-overlay";
+import { DitheredOverlay } from "../../components/dithered-overlay";
 
 export default function Home() {
   const {

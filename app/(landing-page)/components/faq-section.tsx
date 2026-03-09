@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Frame } from "@react95/core";
 import { QuestionBubble } from "@react95/icons";
-import { Header } from "./header";
-import { BundyCampusMapsModal, MyComputerModal } from "./modals";
+import { Header } from "../../../components/header";
+import { BundyCampusMapsModal } from "./modals";
 
 const faqs = [
   {

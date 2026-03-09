@@ -28,7 +28,6 @@ export function DitheredOverlay() {
 export function SolidDitheredOverlay() {
   return (
     <div
-      className="z-10 absolute inset-0 pointer-events-none"
       style={{
         position: "fixed", // changed from absolute → fixed for full viewport coverage
         inset: 0,
