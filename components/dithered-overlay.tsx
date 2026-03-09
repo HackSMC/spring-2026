@@ -17,9 +17,9 @@ export function DitheredOverlay() {
         backgroundRepeat: "repeat",
         backgroundSize: "4px 4px",
         maskImage:
-          "linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.6) 100%)",
+          "linear-gradient(to bottom, transparent 10%, rgba(0,0,0,0.6) 100%)",
         WebkitMaskImage:
-          "linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.6) 100%)",
+          "linear-gradient(to bottom, transparent 10%, rgba(0,0,0,0.6) 100%)",
       }}
     />
   );
