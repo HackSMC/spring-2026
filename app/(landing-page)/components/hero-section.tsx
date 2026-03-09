@@ -3,8 +3,10 @@ import { Computer, McmEarth, Network3, Qfecheck111 } from "@react95/icons";
 import { HeroBackground } from "./hero-background";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export function HeroSection({ sunProgress }: { sunProgress: number }) {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export function HeroSection({ sunProgress }: { sunProgress: number }) {
           <Button
             className="flex items-center gap-2 cursor-pointer"
             style={{ fontSize: "1.5rem" }}
+            onClick={() => router.push("/apply")}
           >
             <McmEarth className="w-6 h-6" />
             Apply Now
