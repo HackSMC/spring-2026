@@ -12,6 +12,8 @@
     "@react95/clippy": "^2.0.2",
     "@react95/core": "^9.6.3",
     "@react95/icons": "^2.2.0",
+    "@supabase/ssr": "^0.9.0",
+    "@supabase/supabase-js": "^2.99.1",
     "@tanstack/react-form": "^1.28.5",
     "@tanstack/react-form-nextjs": "^1.28.5",
     "next": "16.1.6",

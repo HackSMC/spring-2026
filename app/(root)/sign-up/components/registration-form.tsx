@@ -1,13 +1,31 @@
+// features/auth/components/registration-form.tsx
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button, Fieldset, Modal, TitleBar } from "@react95/core";
-import { z } from "zod";
 import { useAppForm } from "@/features/auth/hooks/create-form-hook";
-import { RegistrationFormValues } from "../types/registration";
 import { registrationSchema } from "@/features/auth/schema/auth";
+import { createClient } from "@/features/auth/lib/client";
+import {
+  RegistrationFormValues,
+  RegistrationState,
+} from "@/features/auth/types/auth";
+import {
+  parseRegistrationError,
+  REGISTRATION_ERROR_MESSAGES,
+} from "@/features/auth/utils/auth-error";
 
 export function RegistrationForm() {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [state, setState] = useState<RegistrationState>({
+    error: null,
+    needsConfirmation: false,
+  });
+
   const form = useAppForm({
     defaultValues: {
       email: "",
@@ -18,9 +36,77 @@ export function RegistrationForm() {
       onBlur: registrationSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("register", value);
+      setState({ error: null, needsConfirmation: false });
+
+      const { data, error } = await supabase.auth.signUp({
+        email: value.email,
+        password: value.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/sign-in`,
+        },
+      });
+
+      if (error) {
+        setState({
+          error: parseRegistrationError(error),
+          needsConfirmation: false,
+        });
+        return;
+      }
+
+      if (data.session === null && data.user?.identities?.length === 0) {
+        // Ghost user — email already taken but confirmation is pending
+        setState({ error: "email_taken", needsConfirmation: false });
+        return;
+      }
+
+      if (data.session === null) {
+        setState({ error: null, needsConfirmation: true });
+        return;
+      }
     },
   });
+
+  if (state.needsConfirmation) {
+    return (
+      <Modal
+        className="flex w-xl max-w-[calc(100vw-2rem)]"
+        dragOptions={{ disabled: true }}
+        style={{
+          position: "relative",
+          translate: "none",
+          left: "auto",
+          top: "auto",
+          zIndex: 20,
+        }}
+        icon={<span>📧</span>}
+        title="HackSMC - Check Your Email"
+        titleBarOptions={[<TitleBar.Close key="close" />]}
+      >
+        <Modal.Content>
+          <div className="p-2">
+            <Fieldset className="mb-4 p-2" legend="Almost There!">
+              <div className="space-y-2 p-1 text-xs leading-normal">
+                <p>
+                  We sent a confirmation link to{" "}
+                  <strong>{form.getFieldValue("email")}</strong>.
+                </p>
+                <p>
+                  Open your inbox, click the link, and you will be all set to
+                  apply for HackSMC. Once confirmed,{" "}
+                  <Link href="/sign-in" className="text-[#003c74] underline">
+                    sign in here
+                  </Link>{" "}
+                  to start your application.
+                </p>
+                <p>No email? Check your spam folder.</p>
+              </div>
+            </Fieldset>
+          </div>
+        </Modal.Content>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
@@ -46,6 +132,20 @@ export function RegistrationForm() {
               </div>
             </Fieldset>
 
+            {state.error && (
+              <div className="bg-[#fff0f0] mb-3 px-2 py-1.5 border border-[#8a1f11] text-[#8a1f11] text-xs">
+                {REGISTRATION_ERROR_MESSAGES[state.error]}
+                {state.error === "email_taken" && (
+                  <>
+                    {" "}
+                    <Link href="/sign-in" className="underline">
+                      Sign in instead?
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
+
             <Fieldset className="mb-4 p-2" legend="Account Info">
               <form.AppField name="email">
                 {(field) => (
@@ -57,9 +157,7 @@ export function RegistrationForm() {
                     />
                     {field.state.meta.isTouched &&
                       field.state.meta.errors.length > 0 && (
-                        <div className="pt-0.5 pb-2.5 text-[#8a1f11] text-xs">
-                          {field.state.meta.errors[0]?.message}
-                        </div>
+                        <form.FieldError errors={field.state.meta.errors} />
                       )}
                   </>
                 )}
@@ -75,9 +173,7 @@ export function RegistrationForm() {
                     />
                     {field.state.meta.isTouched &&
                       field.state.meta.errors.length > 0 && (
-                        <div className="pt-0.5 pb-2.5 text-[#8a1f11] text-xs">
-                          {field.state.meta.errors[0]?.message}
-                        </div>
+                        <form.FieldError errors={field.state.meta.errors} />
                       )}
                   </>
                 )}
@@ -102,17 +198,9 @@ export function RegistrationForm() {
                       placeholder="Re-enter your password"
                       type="password"
                     />
-                    errors
                     {field.state.meta.isTouched &&
                       field.state.meta.errors.length > 0 && (
-                        <div className="pt-0.5 pb-2.5 text-[#8a1f11] text-xs">
-                          {field.state.meta.errors
-                            .map((e) =>
-                              typeof e === "string" ? e : e?.message,
-                            )
-                            .filter(Boolean)
-                            .join(", ")}
-                        </div>
+                        <form.FieldError errors={field.state.meta.errors} />
                       )}
                   </>
                 )}
