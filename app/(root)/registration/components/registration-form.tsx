@@ -3,22 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button, Fieldset, Input, Modal, TitleBar } from "@react95/core";
-
-interface FieldProps {
-  label: string;
-  children: React.ReactNode;
-}
-
-function Field({ label, children }: FieldProps) {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ marginBottom: 4, fontSize: 11 }}>{label}</div>
-      {children}
-    </div>
-  );
-}
+import { Field } from "@/components/form";
 
 export function RegistrationForm() {
+  // mark for replacement with tanstack-form and zod
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,11 +18,12 @@ export function RegistrationForm() {
     password.length > 0 &&
     confirmPassword.length > 0 &&
     password === confirmPassword;
-    
+
   return (
     <Modal
       className="flex w-xl max-w-[calc(100vw-2rem)]"
       dragOptions={{ disabled: true }}
+      // Per instructions: Modal styles kept as inline
       style={{
         position: "relative",
         translate: "none",
@@ -48,21 +37,13 @@ export function RegistrationForm() {
     >
       <Modal.Content>
         <div className="p-2">
-          <Fieldset
-            className="p-2"
-            legend="Create Account"
-            style={{ marginBottom: 16 }}
-          >
-            <div style={{ padding: 4, fontSize: 12, lineHeight: 1.5 }}>
+          <Fieldset className="mb-4 p-2" legend="Create Account">
+            <div className="p-1 text-xs leading-normal">
               Create your account to continue your HackSMC application journey.
             </div>
           </Fieldset>
 
-          <Fieldset
-            className="p-2"
-            legend="Account Info"
-            style={{ marginBottom: 16 }}
-          >
+          <Fieldset className="mb-4 p-2" legend="Account Info">
             <Field label="Email">
               <Input
                 value={email}
@@ -70,18 +51,12 @@ export function RegistrationForm() {
                   setEmail(event.target.value)
                 }
                 placeholder="jane@example.com"
-                style={{ width: "100%" }}
+                className="w-full"
               />
             </Field>
 
             {showEmailStatus ? (
-              <div
-                style={{
-                  fontSize: 12,
-                  padding: "2px 0 10px",
-                  color: "#8a1f11",
-                }}
-              >
+              <div className="pt-[2px] pb-[10px] text-[#8a1f11] text-xs">
                 Enter a valid email address.
               </div>
             ) : null}
@@ -93,7 +68,7 @@ export function RegistrationForm() {
                   setPassword(event.target.value)
                 }
                 placeholder="Create a password"
-                style={{ width: "100%" }}
+                className="w-full"
                 type="password"
               />
             </Field>
@@ -105,42 +80,20 @@ export function RegistrationForm() {
                   setConfirmPassword(event.target.value)
                 }
                 placeholder="Re-enter your password"
-                style={{ width: "100%" }}
+                className="w-full"
                 type="password"
               />
             </Field>
 
             {showPasswordStatus && !passwordsMatch ? (
-              <div
-                style={{
-                  fontSize: 12,
-                  padding: "2px 0 4px",
-                  color: "#8a1f11",
-                }}
-              >
+              <div className="pt-[2px] pb-1 text-[#8a1f11] text-xs">
                 Passwords do not match yet.
               </div>
             ) : null}
           </Fieldset>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: 8,
-              marginTop: 12,
-              flexWrap: "wrap",
-            }}
-          >
-            <Link
-              href="/login"
-              style={{
-                fontSize: 12,
-                color: "#003c74",
-                textDecoration: "underline",
-              }}
-            >
+          <div className="flex flex-wrap justify-between items-center gap-2 mt-3">
+            <Link href="/login" className="text-[#003c74] text-xs underline">
               Back to login
             </Link>
 
