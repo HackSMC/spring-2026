@@ -1,12 +1,14 @@
 import { Header } from "@/components/header";
 import { HackerApplicationForm } from "./components/hacker-apply-form";
 import { Awfxcg321303 } from "@react95/icons";
+import { delay } from "@/lib/use-delay";
 
-export default function Apply() {
+export default async function Apply() {
+  await delay();
   return (
-    <div className="z-20 place-content-center grid py-16 w-full">
+    <div className="place-content-center grid py-16 w-full">
       <div className="grid grid-cols-1 grid-rows-[auto,1fr]">
-        <div className="z-20 w-full">
+        <div className="w-full">
           <Header
             icon={<Awfxcg321303 />}
             subtitle="Submit your hacker application"

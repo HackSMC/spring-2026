@@ -16,7 +16,9 @@ export default function ApplyLayout({
     <>
       <TealBackground />
       <SolidDitheredOverlay />
-      <div className="z-20 w-full h-full min-h-screen">{children}</div>
+      <main className="z-20 relative w-full h-screen min-h-screen">
+        {children}
+      </main>
     </>
   );
 }
