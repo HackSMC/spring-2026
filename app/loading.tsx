@@ -1,56 +1,67 @@
-"use client";
+"use client"; // ← can actually remove this too if you drop all hooks
 
 import { TealBackground } from "@/components/teal-background";
-import { Frame, ProgressBar } from "@react95/core";
-import { useEffect, useState } from "react";
 import { SolidDitheredOverlay } from "../components/dithered-overlay";
 
 const MESSAGES = [
   "Initializing...",
   "Loading resources...",
   "Applying settings...",
+  "Checking system integrity...",
+  "Finalizing configurations...",
   "Almost there...",
 ];
 
+const DURATION = MESSAGES.length * 0.15;
+
 export default function Loading() {
-  const [percent, setPercent] = useState(0);
-  const [msgIndex, setMsgIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPercent((p) => {
-        if (p >= 85) {
-          clearInterval(interval);
-          return 85;
-        }
-        return p + Math.random() * 6;
-      });
-    }, 10);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const idx = Math.floor((percent / 85) * MESSAGES.length);
-    setMsgIndex(Math.min(idx, MESSAGES.length - 1));
-  }, [percent]);
-
   return (
     <div className="fixed inset-0 flex justify-center items-center">
       <TealBackground />
       <SolidDitheredOverlay />
-      <Frame style={{ zIndex: 20, width: 400 }} bgColor="$material">
-        <div className="flex flex-col gap-3 p-4">
-          <div className="flex items-center gap-2">
-            <p className="font-sans text-black text-sm">
-              Loading, please wait.
-            </p>
-          </div>
-          <ProgressBar percent={Math.floor(percent)} width="100%" />
-          <p className="font-sans text-black text-gray-600 text-xs">
-            {MESSAGES[msgIndex]}
-          </p>
+      <div className="z-20 bg-[#d4d0c8] shadow-[2px_2px_0px_#000] border-2 border-white border-r-[#808080] border-b-[#808080] w-[400px]">
+        <div className="flex items-center bg-[#000080] px-2 py-1">
+          <span className="font-sans font-bold text-white text-xs">
+            System Startup
+          </span>
         </div>
-      </Frame>
+        <div className="flex flex-col gap-3 p-4">
+          <div className="bg-[#808080] border border-[#404040] w-full h-4 overflow-hidden">
+            <div
+              className="bg-[#000080] h-full"
+              style={{ animation: "loading-bar 1s ease-out forwards" }}
+            />
+          </div>
+
+          <div className="relative min-h-[1rem]">
+            {MESSAGES.map((msg, i) => (
+              <p
+                key={i}
+                className="absolute inset-0 opacity-0 font-sans text-gray-700 text-xs"
+                style={{
+                  animation: `msg-step ${DURATION}s steps(1) forwards`,
+                  animationDelay: `${i * 0.15}s`,
+                }}
+              >
+                {msg}
+              </p>
+            ))}
+          </div>
+
+          <style>{`
+            @keyframes loading-bar {
+              0%   { width: 0% }
+              100% { width: 95% }
+            }
+            @keyframes msg-step {
+              0%   { opacity: 1; }
+              /* Stay visible for one step, then hide */
+              ${100 / MESSAGES.length}% { opacity: 0; }
+              100% { opacity: 0; }
+            }
+          `}</style>
+        </div>
+      </div>
     </div>
   );
 }

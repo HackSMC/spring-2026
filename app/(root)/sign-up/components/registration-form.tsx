@@ -39,7 +39,7 @@ export function RegistrationForm() {
         <div className="p-2">
           <Fieldset className="mb-4 p-2" legend="Create Account">
             <div className="p-1 text-xs leading-normal">
-              Create your account to continue your HackSMC application journey.
+              Enter your email and password below to create an account.
             </div>
           </Fieldset>
 
@@ -93,8 +93,8 @@ export function RegistrationForm() {
           </Fieldset>
 
           <div className="flex flex-wrap justify-between items-center gap-2 mt-3">
-            <Link href="/login" className="text-[#003c74] text-xs underline">
-              Back to login
+            <Link href="/sign-in" className="text-[#003c74] text-xs underline">
+              Already have an account?
             </Link>
 
             <Button disabled={!emailIsValid || !passwordsMatch}>

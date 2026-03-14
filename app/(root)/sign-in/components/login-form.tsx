@@ -26,8 +26,7 @@ export function LoginForm() {
         <div className="p-2">
           <Fieldset className="mb-4 p-2" legend="Welcome Back">
             <div className="p-1 text-xs leading-normal">
-              Sign in to check your application, view important updates, and
-              continue your HackSMC journey.
+              Enter your email and password to access your account
             </div>
           </Fieldset>
 
@@ -46,11 +45,8 @@ export function LoginForm() {
           </Fieldset>
 
           <div className="flex flex-wrap justify-between items-center gap-2 mt-3">
-            <Link
-              href="/registration"
-              className="text-[#003c74] text-xs underline"
-            >
-              Create an account
+            <Link href="/sign-up" className="text-[#003c74] text-xs underline">
+              Don't have an account?
             </Link>
 
             <Button>Login</Button>
