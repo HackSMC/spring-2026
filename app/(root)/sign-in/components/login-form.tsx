@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Fieldset, Modal, TitleBar } from "@react95/core";
-import { useAppForm } from "@/features/auth/hooks/create-form-hook";
+import { useAppForm } from "@/hooks/create-form-hook";
 import { loginSchema } from "@/features/auth/schema/auth";
 import { createClient } from "@/features/auth/lib/client";
 import {

@@ -1,4 +1,4 @@
-import { useFieldContext } from "@/features/auth/hooks/create-form-hook";
+import { useFieldContext } from "@/hooks/create-form-hook";
 import { Input } from "@react95/core";
 
 export function TextWindow95Field({

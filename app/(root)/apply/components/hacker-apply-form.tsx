@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Button, Fieldset, Frame, Modal, TitleBar } from "@react95/core";
-import { useAppForm } from "@/features/auth/hooks/create-form-hook";
+import { useAppForm } from "@/hooks/create-form-hook";
 import { HackerApplicationValues } from "../types/apply";
 
 const GENDER_OPTIONS = [
