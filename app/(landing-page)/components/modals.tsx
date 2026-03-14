@@ -104,7 +104,7 @@ export function ReadmeModal({ style }: { style?: React.CSSProperties }) {
       >
         <Modal.Content boxShadow="$in" bgColor="white">
           <div className="p-3 font-mono text-black text-xs leading-relaxed">
-            <p>{">"} HACKSMC 2025</p>
+            <p>{">"} HACKSMC 2026</p>
             <br />
             <p>{"🎓"} Open to: Community College Students</p>
             <br />
@@ -161,7 +161,7 @@ export function MyComputerModal({ style }: { style?: React.CSSProperties }) {
           >
             <Computer3 variant="32x32_4" />
             <p className="font-bold text-black text-sm text-center">
-              HackSMC 2025 PC
+              HackSMC 2026 PC
             </p>
             <div className="my-1 border-t border-t-[#808080] border-b border-b-white w-full" />
             <div

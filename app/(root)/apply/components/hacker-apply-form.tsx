@@ -18,8 +18,8 @@ const GENDER_OPTIONS = [
 const GRAD_YEAR_OPTIONS = [
   { value: "Select...", label: "Select..." },
   ...Array.from({ length: 7 }, (_, i) => ({
-    value: String(2025 + i),
-    label: String(2025 + i),
+    value: String(2026 + i),
+    label: String(2026 + i),
   })),
 ];
 
@@ -92,7 +92,7 @@ export function HackerApplicationForm() {
         zIndex: 20,
       }}
       icon={<span>📋</span>}
-      title="Hackathon 2025 — Registration"
+      title="Hackathon 2026 — Registration"
       titleBarOptions={[<TitleBar.Close key="close" />]}
     >
       <Modal.Content>
