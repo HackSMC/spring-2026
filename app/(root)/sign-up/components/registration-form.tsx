@@ -1,4 +1,3 @@
-// features/auth/components/registration-form.tsx
 "use client";
 
 import Link from "next/link";
@@ -55,7 +54,6 @@ export function RegistrationForm() {
       }
 
       if (data.session === null && data.user?.identities?.length === 0) {
-        // Ghost user — email already taken but confirmation is pending
         setState({ error: "email_taken", needsConfirmation: false });
         return;
       }
