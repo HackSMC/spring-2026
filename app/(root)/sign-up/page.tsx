@@ -2,7 +2,6 @@ import { Header } from "@/components/header";
 import { New } from "@react95/icons";
 import { RegistrationForm } from "./components/registration-form";
 import { delay } from "@/lib/use-delay";
-import { Suspense } from "react";
 
 export default async function RegistrationPage() {
   await delay();

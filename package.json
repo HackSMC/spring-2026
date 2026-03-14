@@ -12,9 +12,12 @@
     "@react95/clippy": "^2.0.2",
     "@react95/core": "^9.6.3",
     "@react95/icons": "^2.2.0",
+    "@tanstack/react-form": "^1.28.5",
+    "@tanstack/react-form-nextjs": "^1.28.5",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

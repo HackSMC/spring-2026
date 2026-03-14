@@ -1,110 +1,84 @@
+// components/hacker-application-form.tsx
 "use client";
-import { useRef, useState } from "react";
-import {
-  Button,
-  Checkbox,
-  Dropdown,
-  Fieldset,
-  Frame,
-  Input,
-  Modal,
-  TitleBar,
-} from "@react95/core";
 
-const genderOptions = [
-  "Select...",
-  "Male",
-  "Female",
-  "Non-binary",
-  "Prefer not to say",
-  "Other",
-] as const;
-const gradYearOptions = [
-  "Select...",
-  ...Array.from({ length: 7 }, (_, i) => 2025 + i),
-] as const;
-const residenceOptions = [
-  "Select...",
-  "On Campus",
-  "Off Campus",
-  "Commuter",
-  "Remote",
-] as const;
-const schoolOptions = [
-  "Select...",
-  "School A",
-  "School B",
-  "School C",
-] as const;
+import { useState } from "react";
+import { Button, Fieldset, Frame, Modal, TitleBar } from "@react95/core";
+import { useAppForm } from "@/features/auth/hooks/create-form-hook";
+import { HackerApplicationValues } from "../types/apply";
 
-type GenderOption = (typeof genderOptions)[number];
-type GradYearOption = (typeof gradYearOptions)[number];
-type ResidenceOption = (typeof residenceOptions)[number];
-type SchoolOption = (typeof schoolOptions)[number];
+const GENDER_OPTIONS = [
+  { value: "Select...", label: "Select..." },
+  { value: "Male", label: "Male" },
+  { value: "Female", label: "Female" },
+  { value: "Non-binary", label: "Non-binary" },
+  { value: "Prefer not to say", label: "Prefer not to say" },
+  { value: "Other", label: "Other" },
+];
 
-interface FieldProps {
-  label: string;
-  children: React.ReactNode;
-}
+const GRAD_YEAR_OPTIONS = [
+  { value: "Select...", label: "Select..." },
+  ...Array.from({ length: 7 }, (_, i) => ({
+    value: String(2025 + i),
+    label: String(2025 + i),
+  })),
+];
 
-function Field({ label, children }: FieldProps) {
+const SCHOOL_OPTIONS = [
+  { value: "Select...", label: "Select..." },
+  { value: "School A", label: "School A" },
+  { value: "School B", label: "School B" },
+  { value: "School C", label: "School C" },
+];
+
+const RESIDENCE_OPTIONS = [
+  { value: "Select...", label: "Select..." },
+  { value: "On Campus", label: "On Campus" },
+  { value: "Off Campus", label: "Off Campus" },
+  { value: "Commuter", label: "Commuter" },
+  { value: "Remote", label: "Remote" },
+];
+
+function FieldError({ errors }: { errors: unknown[] }) {
+  if (!errors.length) return null;
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ marginBottom: 4, fontSize: 11 }}>{label}</div>
-      {children}
+    <div className="pt-0.5 pb-2.5 text-[#8a1f11] text-xs">
+      {errors
+        .map((e) =>
+          typeof e === "string" ? e : (e as { message: string })?.message,
+        )
+        .filter(Boolean)
+        .join(", ")}
     </div>
   );
 }
 
-interface FileUploadFieldProps {
-  label: string;
-  accept: string;
-}
-
-function FileUploadField({ label, accept }: FileUploadFieldProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState<string>("");
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setFileName(e.target.files?.[0]?.name ?? "");
-  };
-
-  return (
-    <Field label={label}>
-      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-        <Input
-          readOnly
-          value={fileName}
-          placeholder="No file selected"
-          style={{ flex: 1 }}
-        />
-        <Button onClick={() => inputRef.current?.click()}>Browse...</Button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept={accept}
-          style={{ display: "none" }}
-          onChange={handleChange}
-        />
-      </div>
-    </Field>
-  );
-}
-
 export function HackerApplicationForm() {
-  const [gender, setGender] = useState<GenderOption>("Select...");
-  const [gradYear, setGradYear] = useState<GradYearOption>("Select...");
-  const [school, setSchool] = useState<SchoolOption>("Select...");
-  const [residence, setResidence] = useState<ResidenceOption>("Select...");
-  const [agreed, setAgreed] = useState<boolean>(false);
+  const [submitted, setSubmitted] = useState(false);
 
-  const handleChange =
-    <T extends string | number>(
-      setter: React.Dispatch<React.SetStateAction<T>>,
-    ) =>
-    (e: React.ChangeEvent<HTMLSelectElement>): void => {
-      setter(e.target.value as T);
-    };
+  const form = useAppForm({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      discordUsername: "",
+      phoneNumber: "",
+      dateOfBirth: "",
+      gender: "Select...",
+      graduationYear: "Select...",
+      school: "Select...",
+      residence: "Select...",
+      transcript: null as File | null,
+      resume: null as File | null,
+      agreedToTerms: false,
+    } satisfies HackerApplicationValues,
+    onSubmit: async ({ value }) => {
+      // TODO: upload files + POST to API / supabase
+      console.log("submit", value);
+      setSubmitted(true);
+    },
+  });
+
+  if (submitted) return <SubmittedView onBack={() => setSubmitted(false)} />;
 
   return (
     <Modal
@@ -122,143 +96,249 @@ export function HackerApplicationForm() {
       titleBarOptions={[<TitleBar.Close key="close" />]}
     >
       <Modal.Content>
-        <div className="p-2">
-          <Fieldset
-            className="p-2"
-            legend="Information"
-            style={{ marginBottom: 16 }}
-          >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce
-            vehicula ipsum sit amet ipsum dignissim molestie. Suspendisse
-            potenti. Maecenas volutpat lorem sed enim vehicula rutrum. Cras
-            iaculis aliquet arcu ut cursus. Etiam ligula mi, vulputate nec
-            efficitur non, molestie ut ligula. Vestibulum dictum neque ut nisl
-            convallis dictum. Cras fringilla posuere fermentum. Cras dignissim
-            ullamcorper nisi et vehicula. Mauris non blandit risus. Vestibulum
-            id lorem risus. Vivamus ex nisl, tristique sed dolor quis, fringilla
-            congue elit. Praesent nec velit tortor. Praesent rutrum in nisi id
-            feugiat. Mauris et augue et ex imperdiet rutrum eget vitae leo.
-            Aenean sit amet rhoncus turpis, sit amet rutrum nibh.
-          </Fieldset>
-          <Fieldset
-            className="p-2"
-            legend="Personal Info"
-            style={{ marginBottom: 16 }}
-          >
-            <div style={{ display: "flex", gap: 8 }}>
-              <Field label="First Name">
-                <Input placeholder="Jane" style={{ width: "100%" }} />
-              </Field>
-              <Field label="Last Name">
-                <Input placeholder="Doe" style={{ width: "100%" }} />
-              </Field>
+        <form.AppForm>
+          <div className="p-2">
+            <Fieldset
+              className="p-2"
+              legend="Information"
+              style={{ marginBottom: 16 }}
+            >
+              Lorem ipsum dolor sit amet...
+            </Fieldset>
+
+            <Fieldset
+              className="p-2"
+              legend="Personal Info"
+              style={{ marginBottom: 16 }}
+            >
+              <div style={{ display: "flex", gap: 8 }}>
+                <form.AppField name="firstName">
+                  {(field) => (
+                    <div style={{ flex: 1 }}>
+                      <field.TextWindow95Field
+                        label="First Name"
+                        placeholder="Jane"
+                      />
+                      {field.state.meta.isTouched && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </div>
+                  )}
+                </form.AppField>
+                <form.AppField name="lastName">
+                  {(field) => (
+                    <div style={{ flex: 1 }}>
+                      <field.TextWindow95Field
+                        label="Last Name"
+                        placeholder="Doe"
+                      />
+                      {field.state.meta.isTouched && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </div>
+                  )}
+                </form.AppField>
+              </div>
+
+              <form.AppField name="email">
+                {(field) => (
+                  <>
+                    <field.TextWindow95Field
+                      label="Email"
+                      placeholder="jane@example.com"
+                      type="email"
+                    />
+                    {field.state.meta.isTouched && (
+                      <form.FieldError errors={field.state.meta.errors} />
+                    )}
+                  </>
+                )}
+              </form.AppField>
+
+              <form.AppField name="discordUsername">
+                {(field) => (
+                  <>
+                    <field.TextWindow95Field
+                      label="Discord Username"
+                      placeholder="jane#1234"
+                    />
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </>
+                )}
+              </form.AppField>
+
+              <form.AppField name="phoneNumber">
+                {(field) => (
+                  <>
+                    <field.TextWindow95Field
+                      label="Phone Number"
+                      placeholder="+1 (555) 000-0000"
+                    />
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </>
+                )}
+              </form.AppField>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <form.AppField name="dateOfBirth">
+                  {(field) => (
+                    <div style={{ flex: 1 }}>
+                      <field.TextWindow95Field
+                        label="Date of Birth"
+                        placeholder="MM/DD/YYYY"
+                      />
+                      {field.state.meta.isTouched && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </div>
+                  )}
+                </form.AppField>
+                <form.AppField name="gender">
+                  {(field) => (
+                    <div style={{ flex: 1 }}>
+                      <field.DropdownWindow95Field
+                        label="Gender"
+                        options={GENDER_OPTIONS}
+                      />
+                      {field.state.meta.isTouched && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </div>
+                  )}
+                </form.AppField>
+              </div>
+            </Fieldset>
+
+            <Fieldset
+              className="p-2"
+              legend="Academic Info"
+              style={{ marginBottom: 16 }}
+            >
+              <form.AppField name="graduationYear">
+                {(field) => (
+                  <>
+                    <field.DropdownWindow95Field
+                      label="Graduation Year"
+                      options={GRAD_YEAR_OPTIONS}
+                    />
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </>
+                )}
+              </form.AppField>
+
+              <form.AppField name="school">
+                {(field) => (
+                  <>
+                    <field.DropdownWindow95Field
+                      label="School"
+                      options={SCHOOL_OPTIONS}
+                    />
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </>
+                )}
+              </form.AppField>
+
+              <form.AppField name="residence">
+                {(field) => (
+                  <>
+                    <field.DropdownWindow95Field
+                      label="Residence"
+                      options={RESIDENCE_OPTIONS}
+                    />
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </>
+                )}
+              </form.AppField>
+            </Fieldset>
+
+            <Fieldset
+              className="p-2"
+              legend="Documents"
+              style={{ marginBottom: 16 }}
+            >
+              <form.AppField name="transcript">
+                {(field) => (
+                  <>
+                    <field.FileUploadWindow95Field
+                      label="CC Transcript (PDF)"
+                      accept=".pdf"
+                    />
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </>
+                )}
+              </form.AppField>
+
+              <form.AppField name="resume">
+                {(field) => (
+                  <>
+                    <field.FileUploadWindow95Field
+                      label="Resume (PDF / Word)"
+                      accept=".pdf,.doc,.docx"
+                    />
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </>
+                )}
+              </form.AppField>
+            </Fieldset>
+
+            <Frame variant="outside" style={{ height: 2, margin: "12px 0" }} />
+
+            <form.AppField name="agreedToTerms">
+              {(field) => (
+                <div style={{ marginBottom: 16 }}>
+                  <field.CheckboxWindow95Field label="I agree to the terms and conditions" />
+                  {field.state.meta.isTouched && (
+                    <FieldError errors={field.state.meta.errors} />
+                  )}
+                </div>
+              )}
+            </form.AppField>
+
+            <div
+              style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
+            >
+              <Button type="button" onClick={() => form.reset()}>
+                Reset
+              </Button>
+              <form.Subscribe
+                selector={(s) => ({
+                  isSubmitting: s.isSubmitting,
+                  canSubmit: s.canSubmit,
+                })}
+              >
+                {({ isSubmitting, canSubmit }) => (
+                  <Button
+                    type="submit"
+                    disabled={!canSubmit || isSubmitting}
+                    onClick={form.handleSubmit}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Application"}
+                  </Button>
+                )}
+              </form.Subscribe>
             </div>
-
-            <Field label="Email">
-              <Input placeholder="jane@example.com" style={{ width: "100%" }} />
-            </Field>
-
-            <Field label="Discord Username">
-              <Input placeholder="jane#1234" style={{ width: "100%" }} />
-            </Field>
-
-            <Field label="Phone Number">
-              <Input
-                placeholder="+1 (555) 000-0000"
-                style={{ width: "100%" }}
-              />
-            </Field>
-
-            <div style={{ display: "flex", gap: 8 }}>
-              <Field label="Date of Birth">
-                <Input placeholder="MM/DD/YYYY" style={{ width: "100%" }} />
-              </Field>
-              <Field label="Gender">
-                <Dropdown
-                  options={[...genderOptions]}
-                  value={gender}
-                  onChange={handleChange(setGender)}
-                  style={{ width: "100%" }}
-                />
-              </Field>
-            </div>
-          </Fieldset>
-
-          <Fieldset
-            className="p-2"
-            legend="Academic Info"
-            style={{ marginBottom: 16 }}
-          >
-            <Field label="Graduation Year">
-              <Dropdown
-                options={[...gradYearOptions]}
-                value={gradYear}
-                onChange={handleChange(setGradYear)}
-                style={{ width: "100%" }}
-              />
-            </Field>
-
-            <Field label="School">
-              <Dropdown
-                options={[...schoolOptions]}
-                value={school}
-                onChange={handleChange(setSchool)}
-                style={{ width: "100%" }}
-              />
-            </Field>
-
-            <Field label="Residence">
-              <Dropdown
-                options={[...residenceOptions]}
-                value={residence}
-                onChange={handleChange(setResidence)}
-                style={{ width: "100%" }}
-              />
-            </Field>
-          </Fieldset>
-
-          <Fieldset
-            className="p-2"
-            legend="Documents"
-            style={{ marginBottom: 16 }}
-          >
-            <FileUploadField label="CC Transcript (PDF)" accept=".pdf" />
-            <FileUploadField
-              label="Resume (PDF / Word)"
-              accept=".pdf,.doc,.docx"
-            />
-          </Fieldset>
-
-          <Frame variant="outside" style={{ height: 2, margin: "12px 0" }} />
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 16,
-            }}
-          >
-            <Checkbox
-              checked={agreed}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setAgreed(e.target.checked)
-              }
-              label="I agree to the terms and conditions"
-            />
           </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-            <Button>Reset</Button>
-            <Button disabled={!agreed}>Submit Application</Button>
-          </div>
-        </div>
+        </form.AppForm>
       </Modal.Content>
     </Modal>
   );
 }
 
-export function SubmittedView() {
+export function SubmittedView({ onBack }: { onBack: () => void }) {
   return (
     <Modal
       width="460"
@@ -272,7 +352,7 @@ export function SubmittedView() {
         Thanks for applying! We've received your application and will be in
         touch via email and Discord soon.
       </p>
-      <Button>← Back to Form</Button>
+      <Button onClick={onBack}>← Back to Form</Button>
     </Modal>
   );
 }

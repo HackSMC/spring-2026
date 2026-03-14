@@ -1,29 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Button, Fieldset, Input, Modal, TitleBar } from "@react95/core";
-import { Field } from "@/components/form";
+import { Button, Fieldset, Modal, TitleBar } from "@react95/core";
+import { z } from "zod";
+import { useAppForm } from "@/features/auth/hooks/create-form-hook";
+import { RegistrationFormValues } from "../types/registration";
+import { registrationSchema } from "@/features/auth/schema/auth";
 
 export function RegistrationForm() {
-  // mark for replacement with tanstack-form and zod
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const showEmailStatus = email.length > 0 && !emailIsValid;
-  const showPasswordStatus = password.length > 0 || confirmPassword.length > 0;
-  const passwordsMatch =
-    password.length > 0 &&
-    confirmPassword.length > 0 &&
-    password === confirmPassword;
+  const form = useAppForm({
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    } satisfies RegistrationFormValues,
+    validators: {
+      onBlur: registrationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      console.log("register", value);
+    },
+  });
 
   return (
     <Modal
       className="flex w-xl max-w-[calc(100vw-2rem)]"
       dragOptions={{ disabled: true }}
-      // Per instructions: Modal styles kept as inline
       style={{
         position: "relative",
         translate: "none",
@@ -36,72 +38,114 @@ export function RegistrationForm() {
       titleBarOptions={[<TitleBar.Close key="close" />]}
     >
       <Modal.Content>
-        <div className="p-2">
-          <Fieldset className="mb-4 p-2" legend="Create Account">
-            <div className="p-1 text-xs leading-normal">
-              Enter your email and password below to create an account.
+        <form.AppForm>
+          <div className="p-2">
+            <Fieldset className="mb-4 p-2" legend="Create Account">
+              <div className="p-1 text-xs leading-normal">
+                Enter your email and password below to create an account
+              </div>
+            </Fieldset>
+
+            <Fieldset className="mb-4 p-2" legend="Account Info">
+              <form.AppField name="email">
+                {(field) => (
+                  <>
+                    <field.TextWindow95Field
+                      type="email"
+                      label="Email"
+                      placeholder="jane@example.com"
+                    />
+                    {field.state.meta.isTouched &&
+                      field.state.meta.errors.length > 0 && (
+                        <div className="pt-0.5 pb-2.5 text-[#8a1f11] text-xs">
+                          {field.state.meta.errors[0]?.message}
+                        </div>
+                      )}
+                  </>
+                )}
+              </form.AppField>
+
+              <form.AppField name="password">
+                {(field) => (
+                  <>
+                    <field.TextWindow95Field
+                      label="Password"
+                      placeholder="Create a password"
+                      type="password"
+                    />
+                    {field.state.meta.isTouched &&
+                      field.state.meta.errors.length > 0 && (
+                        <div className="pt-0.5 pb-2.5 text-[#8a1f11] text-xs">
+                          {field.state.meta.errors[0]?.message}
+                        </div>
+                      )}
+                  </>
+                )}
+              </form.AppField>
+
+              <form.AppField
+                name="confirmPassword"
+                validators={{
+                  onBlurListenTo: ["password"],
+                  onBlur: ({ value, fieldApi }) => {
+                    if (value !== fieldApi.form.getFieldValue("password")) {
+                      return "Passwords do not match.";
+                    }
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <>
+                    <field.TextWindow95Field
+                      label="Confirm Password"
+                      placeholder="Re-enter your password"
+                      type="password"
+                    />
+                    errors
+                    {field.state.meta.isTouched &&
+                      field.state.meta.errors.length > 0 && (
+                        <div className="pt-0.5 pb-2.5 text-[#8a1f11] text-xs">
+                          {field.state.meta.errors
+                            .map((e) =>
+                              typeof e === "string" ? e : e?.message,
+                            )
+                            .filter(Boolean)
+                            .join(", ")}
+                        </div>
+                      )}
+                  </>
+                )}
+              </form.AppField>
+            </Fieldset>
+
+            <div className="flex flex-wrap justify-between items-center gap-2 mt-3">
+              <Link
+                href="/sign-in"
+                className="text-[#003c74] text-xs underline"
+              >
+                Already have an account?
+              </Link>
+
+              <form.Subscribe
+                selector={(s) => ({
+                  isSubmitting: s.isSubmitting,
+                  canSubmit: s.canSubmit,
+                })}
+              >
+                {({ isSubmitting, canSubmit }) => (
+                  <Button
+                    type="submit"
+                    disabled={!canSubmit || isSubmitting}
+                    onClick={form.handleSubmit}
+                  >
+                    {isSubmitting ? "Creating..." : "Create Account"}
+                  </Button>
+                )}
+              </form.Subscribe>
             </div>
-          </Fieldset>
-
-          <Fieldset className="mb-4 p-2" legend="Account Info">
-            <Field label="Email">
-              <Input
-                value={email}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  setEmail(event.target.value)
-                }
-                placeholder="jane@example.com"
-                className="w-full"
-              />
-            </Field>
-
-            {showEmailStatus ? (
-              <div className="pt-[2px] pb-[10px] text-[#8a1f11] text-xs">
-                Enter a valid email address.
-              </div>
-            ) : null}
-
-            <Field label="Password">
-              <Input
-                value={password}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  setPassword(event.target.value)
-                }
-                placeholder="Create a password"
-                className="w-full"
-                type="password"
-              />
-            </Field>
-
-            <Field label="Confirm Password">
-              <Input
-                value={confirmPassword}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  setConfirmPassword(event.target.value)
-                }
-                placeholder="Re-enter your password"
-                className="w-full"
-                type="password"
-              />
-            </Field>
-
-            {showPasswordStatus && !passwordsMatch ? (
-              <div className="pt-[2px] pb-1 text-[#8a1f11] text-xs">
-                Passwords do not match yet.
-              </div>
-            ) : null}
-          </Fieldset>
-
-          <div className="flex flex-wrap justify-between items-center gap-2 mt-3">
-            <Link href="/sign-in" className="text-[#003c74] text-xs underline">
-              Already have an account?
-            </Link>
-
-            <Button disabled={!emailIsValid || !passwordsMatch}>
-              Create Account
-            </Button>
           </div>
-        </div>
+        </form.AppForm>
       </Modal.Content>
     </Modal>
   );
