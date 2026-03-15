@@ -30,7 +30,7 @@ export function RegistrationForm() {
   });
 
   const accountMutation = useMutation({
-    mutationFn: (data: Pick<AccountDTO, "email" | "password" | "redirectTo">) =>
+    mutationFn: (data: Pick<AccountDTO, "email" | "password">) =>
       createAccount({
         accountDTO: {
           id: "",
@@ -62,7 +62,6 @@ export function RegistrationForm() {
         await accountMutation.mutateAsync({
           email: value.email,
           password: value.password,
-          redirectTo: "/apply",
         });
 
         setState({ error: null, needsConfirmation: true });
