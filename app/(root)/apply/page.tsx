@@ -1,7 +1,6 @@
 import { Header } from "@/components/header";
 import { HackerApplicationForm } from "./components/hacker-apply-form";
 import { Awfxcg321303 } from "@react95/icons";
-import { delay } from "@/lib/use-delay";
 
 export default async function Apply() {
   return (
