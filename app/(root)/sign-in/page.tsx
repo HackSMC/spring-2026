@@ -6,7 +6,6 @@ import { delay } from "@/lib/use-delay";
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
-  await delay();
   return (
     <div className="place-content-center grid py-16 w-full h-full">
       <div className="relative grid grid-cols-1 grid-rows-[auto,1fr]">

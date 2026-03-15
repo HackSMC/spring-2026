@@ -4,7 +4,6 @@ import { RegistrationForm } from "./components/registration-form";
 import { delay } from "@/lib/use-delay";
 
 export default async function RegistrationPage() {
-  await delay();
   return (
     <div className="place-content-center grid py-16 w-full h-full">
       <div className="grid grid-cols-1 grid-rows-[auto,1fr]">
