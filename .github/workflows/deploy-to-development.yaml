@@ -35,7 +35,7 @@ jobs:
         with:
           switches: -avzr --delete
           path: docker-compose.yaml
-          remote_path: spring2025
+          remote_path: spring-2026
           remote_host: ${{ secrets.SSH_DEV_HOST }}
           remote_user: ${{ secrets.SSH_USERNAME }}
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -45,7 +45,7 @@ jobs:
         with:
           switches: -avzr --delete
           path: init-letsencrypt.sh
-          remote_path: spring2025
+          remote_path: spring-2026
           remote_host: ${{ secrets.SSH_DEV_HOST }}
           remote_user: ${{ secrets.SSH_USERNAME }}
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -59,7 +59,7 @@ jobs:
           script: |
             docker system prune -a --volumes
             docker network create hacksmc-network
-            cd spring2025
+            cd spring-2026
             echo "${{ secrets.DEV_ENV_FILE }}" > .env
             echo "${{ secrets.DEV_ENV_FILE }}" > .env.production
             echo "${{ secrets.PAT }}" | docker login ghcr.io --username "${{ github.repository_owner }}" --password-stdin
