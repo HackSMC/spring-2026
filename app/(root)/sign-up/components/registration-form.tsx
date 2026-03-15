@@ -15,6 +15,10 @@ import {
   parseRegistrationError,
   REGISTRATION_ERROR_MESSAGES,
 } from "@/features/auth/utils/auth-error";
+import { useMutation } from "@tanstack/react-query";
+import { AccountDTO } from "@/features/accounts/types/account-dto";
+import { createAccount } from "@/features/accounts/api/account";
+import { AxiosError } from "axios";
 
 export function RegistrationForm() {
   const router = useRouter();
@@ -23,6 +27,24 @@ export function RegistrationForm() {
   const [state, setState] = useState<RegistrationState>({
     error: null,
     needsConfirmation: false,
+  });
+
+  const accountMutation = useMutation({
+    mutationFn: (data: Pick<AccountDTO, "email" | "password" | "redirectTo">) =>
+      createAccount({
+        accountDTO: {
+          id: "",
+          firstName: "",
+          lastName: "",
+          email: data.email,
+          password: data.password,
+          roles: [],
+          redirectTo: "/apply",
+        },
+      }),
+    onError: (error: AxiosError<{ message: string }>) => {
+      return error.response?.data?.message;
+    },
   });
 
   const form = useAppForm({
@@ -37,30 +59,22 @@ export function RegistrationForm() {
     onSubmit: async ({ value }) => {
       setState({ error: null, needsConfirmation: false });
 
-      const { data, error } = await supabase.auth.signUp({
-        email: value.email,
-        password: value.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/sign-in`,
-        },
-      });
+      try {
+        await accountMutation.mutateAsync({
+          email: value.email,
+          password: value.password,
+          redirectTo: "/apply",
+        });
 
-      if (error) {
+        setState({ error: null, needsConfirmation: true });
+      } catch (error) {
+        const axiosError = error as AxiosError<{ message: string }>;
+        const message = axiosError.response?.data?.message;
+
         setState({
-          error: parseRegistrationError(error),
+          error: parseRegistrationError(message ?? "unknown"),
           needsConfirmation: false,
         });
-        return;
-      }
-
-      if (data.session === null && data.user?.identities?.length === 0) {
-        setState({ error: "email_taken", needsConfirmation: false });
-        return;
-      }
-
-      if (data.session === null) {
-        setState({ error: null, needsConfirmation: true });
-        return;
       }
     },
   });

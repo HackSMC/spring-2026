@@ -1,11 +1,11 @@
 import type { AuthError } from "@supabase/supabase-js";
 import type { LoginError, RegistrationError } from "../types/auth";
 
-export function parseRegistrationError(error: AuthError): RegistrationError {
-  const msg = error.message.toLowerCase();
+export function parseRegistrationError(error: AuthError | string): RegistrationError {
+  const msg = (typeof error === "string" ? error : error.message).toLowerCase();
   if (msg.includes("already registered") || msg.includes("already been registered")) return "email_taken";
   if (msg.includes("password") && msg.includes("weak")) return "weak_password";
-  if (msg.includes("rate limit") || error.status === 429) return "rate_limit";
+  if (msg.includes("rate limit") || (typeof error !== "string" && error.status === 429)) return "rate_limit";
   return "unknown";
 }
 
