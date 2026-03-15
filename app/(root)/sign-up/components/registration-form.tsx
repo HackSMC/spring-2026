@@ -39,7 +39,6 @@ export function RegistrationForm() {
           email: data.email,
           password: data.password,
           roles: [],
-          redirectTo: "/apply",
         },
       }),
     onError: (error: AxiosError<{ message: string }>) => {

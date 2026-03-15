@@ -14,5 +14,4 @@ export interface AccountDTO {
   roles: AccountRoles[];
   createdAt?: string;
   password?: string;
-  redirectTo?: string;
 }

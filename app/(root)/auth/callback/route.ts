@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get("next");
 
   const redirectTo = next?.startsWith("/") ? next : "/";
+  
+  console.log(code, next)
 
   if (!code) {
     return NextResponse.redirect(`${origin}/auth/error?reason=missing_code`);
@@ -15,6 +17,8 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  console.log(error)
 
   if (error) {
     return NextResponse.redirect(
