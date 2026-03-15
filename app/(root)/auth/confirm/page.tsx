@@ -11,15 +11,31 @@ export default function AuthConfirm() {
 
   useEffect(() => {
     const supabase = createClient();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        router.push("/apply");
-      }
-    });
 
-    return () => subscription.unsubscribe();
+    const handleConfirm = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        router.push("/apply");
+        return;
+      }
+
+      // Fallback: listen in case getSession() was too early
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === "SIGNED_IN" && session) {
+          router.push("/apply");
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    };
+
+    handleConfirm();
   }, []);
 
   return (
