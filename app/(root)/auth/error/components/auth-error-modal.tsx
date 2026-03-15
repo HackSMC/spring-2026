@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button, Fieldset, Modal, TitleBar } from "@react95/core";
+import { Win95Modal, Win95ModalContent } from "@/components/modal";
 
 const ERROR_MESSAGES: Record<string, string> = {
   missing_code:
@@ -17,9 +18,8 @@ function getErrorMessage(reason: string): string {
 
 export function AuthErrorModal({ reason }: { reason: string }) {
   return (
-    <Modal
+    <Win95Modal
       className="flex w-xl max-w-[calc(100vw-2rem)]"
-      dragOptions={{ disabled: true }}
       style={{
         position: "relative",
         translate: "none",
@@ -31,7 +31,7 @@ export function AuthErrorModal({ reason }: { reason: string }) {
       title="HackSMC - Auth Error"
       titleBarOptions={[<TitleBar.Close key="close" />]}
     >
-      <Modal.Content>
+      <Win95ModalContent>
         <div className="p-2">
           <Fieldset className="mb-4 p-2" legend="Something Went Wrong">
             <div className="space-y-2 p-1 text-xs leading-normal">
@@ -48,7 +48,7 @@ export function AuthErrorModal({ reason }: { reason: string }) {
             </Link>
           </div>
         </div>
-      </Modal.Content>
-    </Modal>
+      </Win95ModalContent>
+    </Win95Modal>
   );
 }

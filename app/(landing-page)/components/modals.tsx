@@ -1,29 +1,15 @@
-// ─── Individual Modal Components ──────────────────────────────────────────────
-
+import { Win95Modal, Win95ModalContent } from "@/components/modal";
 import { Frame, Modal } from "@react95/core";
 import { Computer3, Explorer103, FileFind2, Notepad } from "@react95/icons";
 
 export function SMCCampusModal({ style }: { style?: React.CSSProperties }) {
   return (
     <div style={{ position: "absolute", width: 250, ...style }}>
-      <Modal
+      <Win95Modal
         title="SMC — Main Campus"
         icon={<FileFind2 variant="16x16_4" />}
-        titleBarOptions={[]}
-        dragOptions={{ defaultPosition: { x: 0, y: 0 } }}
-        style={{
-          position: "relative",
-          top: "unset",
-          left: "unset",
-          width: "100%",
-          inset: "unset",
-        }}
       >
-        <Modal.Content
-          boxShadow="$in"
-          bgColor="$material"
-          style={{ padding: 0 }}
-        >
+        <Win95ModalContent style={{ padding: 0 }}>
           <Frame bgColor="$material" boxShadow="$out">
             <Frame boxShadow="$in">
               <img
@@ -40,8 +26,8 @@ export function SMCCampusModal({ style }: { style?: React.CSSProperties }) {
               />
             </Frame>
           </Frame>
-        </Modal.Content>
-      </Modal>
+        </Win95ModalContent>
+      </Win95Modal>
     </div>
   );
 }
@@ -53,24 +39,11 @@ export function BundyCampusMapsModal({
 }) {
   return (
     <div style={{ position: "absolute", width: 300, ...style }}>
-      <Modal
+      <Win95Modal
         title="Bundy Campus — Maps"
         icon={<Explorer103 variant="16x16_4" />}
-        titleBarOptions={[]}
-        dragOptions={{ defaultPosition: { x: 0, y: 0 } }}
-        style={{
-          position: "relative",
-          top: "unset",
-          left: "unset",
-          width: "100%",
-          inset: "unset",
-        }}
       >
-        <Modal.Content
-          boxShadow="$in"
-          bgColor="$material"
-          style={{ padding: 0 }}
-        >
+        <Win95ModalContent style={{ padding: 0 }}>
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3307.1220991739583!2d-118.445574!3d34.0150767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bafe7f7c6edd%3A0x1506078475f24855!2sSanta%20Monica%20College%20Bundy%20Campus!5e1!3m2!1sen!2sus!4v1772952693827!5m2!1sen!2sus"
             width="100%"
@@ -80,8 +53,8 @@ export function BundyCampusMapsModal({
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
-        </Modal.Content>
-      </Modal>
+        </Win95ModalContent>
+      </Win95Modal>
     </div>
   );
 }
@@ -89,20 +62,11 @@ export function BundyCampusMapsModal({
 export function ReadmeModal({ style }: { style?: React.CSSProperties }) {
   return (
     <div style={{ position: "absolute", width: 255, ...style }}>
-      <Modal
+      <Win95Modal
         title="readme.txt — Notepad"
         icon={<Notepad variant="16x16_4" />}
-        titleBarOptions={[]}
-        dragOptions={{ defaultPosition: { x: 0, y: 0 } }}
-        style={{
-          position: "relative",
-          top: "unset",
-          left: "unset",
-          width: "100%",
-          inset: "unset",
-        }}
       >
-        <Modal.Content boxShadow="$in" bgColor="white">
+        <Win95ModalContent style={{ backgroundColor: "white" }}>
           <div className="p-3 font-mono text-black text-xs leading-relaxed">
             <p>{">"} HACKSMC 2026</p>
             <br />
@@ -132,8 +96,8 @@ export function ReadmeModal({ style }: { style?: React.CSSProperties }) {
             </p>
             <p>_</p>
           </div>
-        </Modal.Content>
-      </Modal>
+        </Win95ModalContent>
+      </Win95Modal>
     </div>
   );
 }
@@ -141,20 +105,8 @@ export function ReadmeModal({ style }: { style?: React.CSSProperties }) {
 export function MyComputerModal({ style }: { style?: React.CSSProperties }) {
   return (
     <div style={{ position: "absolute", width: 295, ...style }}>
-      <Modal
-        title="My Computer"
-        icon={<Computer3 variant="16x16_4" />}
-        titleBarOptions={[]}
-        dragOptions={{ defaultPosition: { x: 0, y: 0 } }}
-        style={{
-          position: "relative",
-          top: "unset",
-          left: "unset",
-          width: "100%",
-          inset: "unset",
-        }}
-      >
-        <Modal.Content boxShadow="$in" bgColor="$material">
+      <Win95Modal title="My Computer" icon={<Computer3 variant="16x16_4" />}>
+        <Win95ModalContent>
           <div
             className="flex flex-col items-center gap-2 p-4"
             style={{ fontFamily: "MS Sans Serif, Arial, sans-serif" }}
@@ -182,8 +134,8 @@ export function MyComputerModal({ style }: { style?: React.CSSProperties }) {
               <span style={{ textAlign: "right" }}>50MB Free</span>
             </div>
           </div>
-        </Modal.Content>
-      </Modal>
+        </Win95ModalContent>
+      </Win95Modal>
     </div>
   );
 }

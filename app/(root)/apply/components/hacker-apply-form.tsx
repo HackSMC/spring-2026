@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button, Fieldset, Frame, Modal, TitleBar } from "@react95/core";
 import { useAppForm } from "@/hooks/create-form-hook";
 import { HackerApplicationValues } from "../types/apply";
+import { Win95Modal, Win95ModalContent } from "@/components/modal";
 
 const GENDER_OPTIONS = [
   { value: "Select...", label: "Select..." },
@@ -81,9 +82,8 @@ export function HackerApplicationForm() {
   if (submitted) return <SubmittedView onBack={() => setSubmitted(false)} />;
 
   return (
-    <Modal
+    <Win95Modal
       className="flex w-xl max-w-xl"
-      dragOptions={{ disabled: true }}
       style={{
         position: "relative",
         translate: "none",
@@ -95,7 +95,7 @@ export function HackerApplicationForm() {
       title="Hackathon 2026 — Registration"
       titleBarOptions={[<TitleBar.Close key="close" />]}
     >
-      <Modal.Content>
+      <Win95ModalContent>
         <form.AppForm>
           <div className="p-2">
             <Fieldset
@@ -333,14 +333,14 @@ export function HackerApplicationForm() {
             </div>
           </div>
         </form.AppForm>
-      </Modal.Content>
-    </Modal>
+      </Win95ModalContent>
+    </Win95Modal>
   );
 }
 
 export function SubmittedView({ onBack }: { onBack: () => void }) {
   return (
-    <Modal
+    <Win95Modal
       width="460"
       height="auto"
       icon={<span>✓</span>}
@@ -348,11 +348,13 @@ export function SubmittedView({ onBack }: { onBack: () => void }) {
       titleBarOptions={[<TitleBar.Close key="close" />]}
       style={{ padding: "20px" }}
     >
-      <p style={{ fontSize: 13, margin: "0 0 16px" }}>
-        Thanks for applying! We've received your application and will be in
-        touch via email and Discord soon.
-      </p>
-      <Button onClick={onBack}>← Back to Form</Button>
-    </Modal>
+      <Win95ModalContent>
+        <p style={{ fontSize: 13, margin: "0 0 16px" }}>
+          Thanks for applying! We've received your application and will be in
+          touch via email and Discord soon.
+        </p>
+        <Button onClick={onBack}>← Back to Form</Button>
+      </Win95ModalContent>
+    </Win95Modal>
   );
 }

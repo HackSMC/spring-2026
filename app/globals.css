@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+[class*="inactive"] [class*="titleBar"],
+[class*="titleBar"][class*="inactive"] {
+  background: linear-gradient(to right, #000080, #1084d0) !important;
+}
+
 :root {
   --background: rgb(85, 170, 170);
   --foreground: #171717;

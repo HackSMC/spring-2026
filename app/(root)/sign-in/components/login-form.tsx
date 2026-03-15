@@ -12,6 +12,7 @@ import {
   LOGIN_ERROR_MESSAGES,
 } from "@/features/auth/utils/auth-error";
 import type { LoginFormValues, LoginState } from "@/features/auth/types/auth";
+import { Win95Modal, Win95ModalContent } from "@/components/modal";
 
 export function LoginForm() {
   const router = useRouter();
@@ -49,9 +50,8 @@ export function LoginForm() {
   });
 
   return (
-    <Modal
+    <Win95Modal
       className="flex w-xl max-w-[calc(100vw-2rem)]"
-      dragOptions={{ disabled: true }}
       style={{
         position: "relative",
         translate: "none",
@@ -63,7 +63,7 @@ export function LoginForm() {
       title="HackSMC - Login"
       titleBarOptions={[<TitleBar.Close key="close" />]}
     >
-      <Modal.Content>
+      <Win95ModalContent>
         <form.AppForm>
           <div className="p-2">
             <Fieldset className="mb-4 p-2" legend="Welcome Back">
@@ -149,7 +149,7 @@ export function LoginForm() {
             </div>
           </div>
         </form.AppForm>
-      </Modal.Content>
-    </Modal>
+      </Win95ModalContent>
+    </Win95Modal>
   );
 }

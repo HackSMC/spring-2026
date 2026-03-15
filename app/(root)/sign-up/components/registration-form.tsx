@@ -19,6 +19,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AccountDTO } from "@/features/accounts/types/account-dto";
 import { createAccount } from "@/features/accounts/api/account";
 import { AxiosError } from "axios";
+import { Win95Modal, Win95ModalContent } from "@/components/modal";
 
 export function RegistrationForm() {
   const router = useRouter();
@@ -79,9 +80,8 @@ export function RegistrationForm() {
 
   if (state.needsConfirmation) {
     return (
-      <Modal
+      <Win95Modal
         className="flex w-xl max-w-[calc(100vw-2rem)]"
-        dragOptions={{ disabled: true }}
         style={{
           position: "relative",
           translate: "none",
@@ -93,7 +93,7 @@ export function RegistrationForm() {
         title="HackSMC - Check Your Email"
         titleBarOptions={[<TitleBar.Close key="close" />]}
       >
-        <Modal.Content>
+        <Win95ModalContent>
           <div className="p-2">
             <Fieldset className="mb-4 p-2" legend="Almost There!">
               <div className="space-y-2 p-1 text-xs leading-normal">
@@ -113,15 +113,14 @@ export function RegistrationForm() {
               </div>
             </Fieldset>
           </div>
-        </Modal.Content>
-      </Modal>
+        </Win95ModalContent>
+      </Win95Modal>
     );
   }
 
   return (
-    <Modal
+    <Win95Modal
       className="flex w-xl max-w-[calc(100vw-2rem)]"
-      dragOptions={{ disabled: true }}
       style={{
         position: "relative",
         translate: "none",
@@ -133,7 +132,7 @@ export function RegistrationForm() {
       title="HackSMC - Registration"
       titleBarOptions={[<TitleBar.Close key="close" />]}
     >
-      <Modal.Content>
+      <Win95ModalContent>
         <form.AppForm>
           <div className="p-2">
             <Fieldset className="mb-4 p-2" legend="Create Account">
@@ -244,7 +243,7 @@ export function RegistrationForm() {
             </div>
           </div>
         </form.AppForm>
-      </Modal.Content>
-    </Modal>
+      </Win95ModalContent>
+    </Win95Modal>
   );
 }

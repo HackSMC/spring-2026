@@ -4,6 +4,7 @@ import { HeroBackground } from "./hero-background";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Win95Modal, Win95ModalContent } from "@/components/modal";
 
 export function HeroSection({ sunProgress }: { sunProgress: number }) {
   const router = useRouter();
@@ -60,21 +61,12 @@ export function HeroSection({ sunProgress }: { sunProgress: number }) {
 
 function HeroModal() {
   return (
-    <Modal
+    <Win95Modal
       title="Welcome"
       icon={<Computer variant="16x16_4" />}
-      dragOptions={{ disabled: true }}
-      style={{
-        position: "relative",
-        translate: "none",
-        left: "auto",
-        top: "auto",
-      }}
-      titleBarOptions={[
-        <TitleBar.Help key="help" onClick={() => alert("Hello!")} />,
-      ]}
+      titleBarOptions={<TitleBar.Help onClick={() => alert("Hello!")} />}
     >
-      <Modal.Content boxShadow="$in" bgColor="$material">
+      <Win95ModalContent>
         <div className="flex flex-row gap-8 p-2 w-full">
           <Frame bgColor="$material" boxShadow="$out">
             <Frame
@@ -101,7 +93,7 @@ function HeroModal() {
             <div className="mt-6 text-[#444] text-4xl">Bundy Campus</div>
           </div>
         </div>
-      </Modal.Content>
-    </Modal>
+      </Win95ModalContent>
+    </Win95Modal>
   );
 }

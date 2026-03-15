@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/features/auth/lib/client";
 import { Modal } from "@react95/core";
 import { Computer } from "@react95/icons";
+import { Win95Modal, Win95ModalContent } from "@/components/modal";
 
 export default function AuthConfirm() {
   const router = useRouter();
@@ -48,10 +49,9 @@ export default function AuthConfirm() {
 
   return (
     <div className="flex justify-center items-center w-screen h-screen">
-      <Modal
+      <Win95Modal
         title="Welcome"
         icon={<Computer variant="16x16_4" />}
-        dragOptions={{ disabled: true }}
         style={{
           position: "relative",
           translate: "none",
@@ -59,10 +59,10 @@ export default function AuthConfirm() {
           top: "auto",
         }}
       >
-        <Modal.Content boxShadow="$in" bgColor="$material">
+        <Win95ModalContent bgColor="$material">
           <div className="p-6 text-center">Confirming your account...</div>
-        </Modal.Content>
-      </Modal>
+        </Win95ModalContent>
+      </Win95Modal>
     </div>
   );
 }
