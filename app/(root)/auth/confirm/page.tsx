@@ -6,16 +6,20 @@ import { createClient } from "@/features/auth/lib/client";
 import { Modal } from "@react95/core";
 import { Computer } from "@react95/icons";
 
-export default function AuthCallback() {
+export default function AuthConfirm() {
   const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
         router.push("/apply");
       }
     });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
