@@ -71,7 +71,6 @@ export function LoginForm() {
                 Enter your email and password to access your account
               </div>
             </Fieldset>
-            // Inside the modal, above the error banner:
             {confirmed && (
               <div className="bg-[#f0fff0] mb-3 px-2 py-1.5 border border-[#1f8a3c] text-[#1f5c2e] text-xs">
                 Your email is confirmed. You can sign in now.

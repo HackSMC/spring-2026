@@ -77,7 +77,7 @@ export function RegistrationForm() {
           top: "auto",
           zIndex: 20,
         }}
-        icon={<span>📧</span>}
+        icon={<span className="mx-1">📧</span>}
         title="HackSMC - Check Your Email"
         titleBarOptions={[<TitleBar.Close key="close" />]}
       >
@@ -117,7 +117,7 @@ export function RegistrationForm() {
         top: "auto",
         zIndex: 20,
       }}
-      icon={<span>📝</span>}
+      icon={<span className="mx-1">📧</span>}
       title="HackSMC - Registration"
       titleBarOptions={[<TitleBar.Close key="close" />]}
     >
