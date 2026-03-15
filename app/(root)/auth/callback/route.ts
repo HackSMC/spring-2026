@@ -3,13 +3,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/features/auth/lib/server";
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next");
-
   const redirectTo = next?.startsWith("/") ? next : "/";
-  
-  console.log(code, next)
+
+  // Use forwarded host from nginx instead of internal Docker hostname
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  const proto = request.headers.get('x-forwarded-proto') || 'https';
+  const origin = `${proto}://${host}`;
+
 
   if (!code) {
     return NextResponse.redirect(`${origin}/auth/error?reason=missing_code`);
