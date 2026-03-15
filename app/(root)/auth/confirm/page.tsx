@@ -12,30 +12,38 @@ export default function AuthConfirm() {
   useEffect(() => {
     const supabase = createClient();
 
-    const handleConfirm = async () => {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
+    const handleSession = async () => {
+      // Manually parse the hash fragment
+      const hash = window.location.hash;
 
-      if (session) {
-        router.push("/apply");
-        return;
+      if (hash) {
+        const params = new URLSearchParams(hash.substring(1));
+        const access_token = params.get("access_token");
+        const refresh_token = params.get("refresh_token");
+
+        if (access_token && refresh_token) {
+          const { error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+          });
+
+          if (!error) {
+            router.push("/apply");
+            return;
+          }
+        }
       }
 
-      // Fallback: listen in case getSession() was too early
+      // Fallback
       const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === "SIGNED_IN" && session) {
-          router.push("/apply");
-        }
-      });
-
-      return () => subscription.unsubscribe();
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        router.push("/apply");
+      }
     };
 
-    handleConfirm();
+    handleSession();
   }, []);
 
   return (
