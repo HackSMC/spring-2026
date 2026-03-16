@@ -8,6 +8,7 @@ import { useSunCycle } from "./hooks/use-sun-cycle";
 import { FaqSection } from "./components/faq-section";
 import { WaveTransition } from "./components/wave-transition";
 import { DitheredOverlay } from "../../components/dithered-overlay";
+import { MobileModalsSection } from "./components/modals-mobile-section";
 
 export default function Home() {
   const {
@@ -58,6 +59,7 @@ export default function Home() {
       <div className="relative bg-gradient-to-b from-[#008080] to-[#004C98]">
         <DitheredOverlay />
         <AboutSection />
+        <MobileModalsSection />
         <FaqSection />
       </div>
 

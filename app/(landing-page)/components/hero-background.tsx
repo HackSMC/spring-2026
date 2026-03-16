@@ -1,6 +1,11 @@
 import { useEffect, useRef } from "react";
 
-const PIXEL = 4;
+let PIXEL = 4;
+
+// ADD this function instead, and call getPixel() wherever you use PIXEL in draw():
+function getPixel(W: number): number {
+  return W < 640 ? 2 : 4;
+}
 
 // Seeded PRNG (mulberry32) — produces the same "random" sequence for a given
 // seed so star positions stay consistent frame-to-frame, but look scattered at
@@ -487,10 +492,11 @@ function drawCoastalBuildings(
   t: number,
   lightsOnly = false,
 ): void {
+  const isMobile = W < 640;
   const oceanH = H - horizonY;
   if (oceanH <= 0) return;
 
-  const roadPositions = [0.38, 0.6, 0.8];
+  const roadPositions = [0.37, 0.6, 0.8];
 
   // Helper: compute smooth edge + sandWidth for a given y
   function getSmoothEdge(y: number) {
@@ -513,6 +519,9 @@ function drawCoastalBuildings(
       const { smoothEdge, sandWidth, progress } = getSmoothEdge(y);
       if (sandWidth < PIXEL * 12) continue;
       const yPct = progress;
+
+      if (progress < 0.1) continue; // ← no roads near the horizon/top
+      if (smoothEdge + sandWidth * roadPositions[0] > W * 0.9) continue; // ← no roads past pier area
 
       for (const rPos of roadPositions) {
         const roadX = snap(smoothEdge + sandWidth * rPos);
@@ -551,17 +560,20 @@ function drawCoastalBuildings(
   }
 
   // --- 2) ANGLED CROSS STREETS + BUILDING CLUSTERS ---
-  const blockCount = 8;
+  const blockCount = 10;
   let buildingIdx = 0;
   for (let block = 0; block < blockCount; block++) {
-    const yPct = 0.02 + (block / blockCount) * 1.05;
+    const yPct = -0.25 + (block / blockCount) * 1.3;
+
+    // ADD THIS:
+    if (yPct < 0.1) continue; // ← skip top blocks entirely
     const blockTopY = snap(horizonY + oceanH * yPct);
     const blockBotY = snap(horizonY + oceanH * (yPct + 0.95 / blockCount));
     const blockH = blockBotY - blockTopY;
     const midY = snap((blockTopY + blockBotY) / 2);
 
     const { smoothEdge, sandWidth } = getSmoothEdge(midY);
-    if (sandWidth < PIXEL * 14) continue;
+    if (sandWidth < PIXEL * 6) continue;
 
     const depthScale = 1.2 + yPct * 0.8;
 
@@ -607,7 +619,7 @@ function drawCoastalBuildings(
       const colStart = roadXs[i] + roadWs[i] + PIXEL;
       const colEnd =
         i < roadXs.length - 1 ? roadXs[i + 1] - PIXEL : W - PIXEL * 2;
-      if (colEnd - colStart >= PIXEL * 8) {
+      if (colEnd - colStart >= PIXEL * 4) {
         columns.push({ startX: colStart, endX: colEnd });
       }
     }
@@ -924,7 +936,7 @@ function drawPier(
   const oceanH = H - horizonY;
   const pierYBase = snap(horizonY + oceanH * 0.18);
   const deckY = snap(pierYBase - PIXEL * 3);
-  const pierLeftX = snap(W * 0.72);
+  const pierLeftX = snap(W * 0.62);
   // Right end overlaps past beach edge so pylons sit on sand
   const shoreX = getActualBeachEdge(pierYBase, W, H, horizonY);
   const sandWidth = W - shoreX;
@@ -1080,33 +1092,33 @@ function drawBoats(
   t: number,
 ): void {
   const oceanH = H - horizonY;
-  const P = PIXEL;
+  const P = getPixel(W);
 
-  // --- SAILBOATS ---
+  const isMobile = W < 640;
+
   const sailboats = [
     {
-      xPct: 0.02,
-      yPct: 0.1,
+      xPct: isMobile ? 0.01 : 0.02,
+      yPct: isMobile ? 0.1 : 0.1,
       bobSpeed: 0.008,
       sailColor: PALETTE.boatSail,
       small: false,
     },
     {
-      xPct: 0.08,
-      yPct: 0.3,
+      xPct: W < 640 ? 0.06 : 0.08, // ← was 0.12 on mobile, pull left
+      yPct: W < 640 ? 0.28 : 0.3, // ← was 0.45, pull up closer
       bobSpeed: 0.006,
       sailColor: PALETTE.umbrellaRed,
       small: false,
     },
     {
-      xPct: 0.62,
-      yPct: 0.05,
+      xPct: isMobile ? 0.55 : 0.62,
+      yPct: isMobile ? 0.03 : 0.05,
       bobSpeed: 0.005,
       sailColor: PALETTE.boatSail,
       small: true,
     },
   ];
-
   sailboats.forEach((boat, i) => {
     const bx = snap(W * boat.xPct);
     const by = snap(
@@ -1225,8 +1237,8 @@ function drawMarineLife(
 
   // --- DOLPHIN (single, rare appearance) ---
   {
-    const baseX = snap(W * 0.15);
-    const baseY = snap(horizonY + oceanH * 0.22);
+    const baseX = snap(W * 0.08); // further left into ocean
+    const baseY = snap(horizonY + oceanH * 0.15); // closer to horizon = further away
     const edgeX = getActualBeachEdge(baseY, W, H, horizonY);
     if (baseX + P * 14 < edgeX) {
       // Very slow cycle — only visible ~15% of the time
@@ -1381,8 +1393,8 @@ function drawMarineLife(
 
   // --- WHALE (single, very rare, big and detailed) ---
   {
-    const baseX = snap(W * 0.45);
-    const baseY = snap(horizonY + oceanH * 0.3);
+    const baseX = snap(W * 0.25); // further left, away from shore
+    const baseY = snap(horizonY + oceanH * 0.18); // closer to horizon
     const edgeX = getActualBeachEdge(baseY, W, H, horizonY);
     if (baseX + P * 24 < edgeX) {
       // Very slow cycle — only surfaces ~10% of the time
@@ -2562,9 +2574,20 @@ export function HeroBackground({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let initialHeight: number | null = null;
+
     const resize = (): void => {
+      const isMobile = window.innerWidth < 640;
       canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // On mobile, lock height after first measurement so Safari bar doesn't cause jumping
+      if (isMobile) {
+        if (initialHeight === null) {
+          initialHeight = window.innerHeight;
+        }
+        canvas.height = initialHeight;
+      } else {
+        canvas.height = window.innerHeight;
+      }
       const W = canvas.width;
       const H = canvas.height;
       const horizonY = snap(H * 0.55);
@@ -2607,7 +2630,6 @@ export function HeroBackground({
         const ty = horizonY + oceanH * def.yPct;
         const edgeX = getActualBeachEdge(ty, W, H, horizonY);
         const sandWidth = W - edgeX;
-        // Scale slightly larger for trees closer to bottom (nearer to viewer)
         const sc = 0.8 + def.yPct * 0.5;
         return {
           x: edgeX + sandWidth * (0.05 + ((def.phase * 31) % 28) / 100),
@@ -2625,10 +2647,13 @@ export function HeroBackground({
     window.addEventListener("resize", resize);
 
     const draw = (): void => {
-      const { clouds, birds, palmTrees, t } = stateRef.current;
       const W = canvas.width;
       const H = canvas.height;
-      const horizonY = snap(H * 0.55);
+      PIXEL = W < 640 ? 2 : 4; // ← just this, no hooks
+      const horizonY = snap(H * (W < 640 ? 0.48 : 0.55));
+
+      const { clouds, birds, palmTrees, t } = stateRef.current;
+
       const sp = sunProgressRef.current;
       const starOpacity = getStarOpacity(sp);
       const boatOpacity = getBoatOpacity(sp);
@@ -2850,7 +2875,7 @@ export function HeroBackground({
   }, []);
 
   return (
-    <div className="relative h-[120vh] overflow-hidden">
+    <div className="relative h-[102vh] overflow-hidden">
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"

@@ -31,6 +31,7 @@ export function Win95Modal({
       padding="$2"
       role="dialog"
       style={{
+        zIndex: 20,
         position: "relative",
         width: width ?? "fit-content",
         height: height ?? "fit-content",
@@ -57,7 +58,7 @@ export function Win95ModalContent({
 }) {
   return (
     <Modal.Content boxShadow="$in" bgColor="$material" style={style}>
-      <div className="p-3">{children}</div>
+      <div>{children}</div>
     </Modal.Content>
   );
 }
