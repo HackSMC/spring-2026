@@ -67,7 +67,7 @@ export function ReadmeModal({ style }: { style?: React.CSSProperties }) {
         icon={<Notepad variant="16x16_4" />}
       >
         <Win95ModalContent style={{ backgroundColor: "white" }}>
-          <div className="md:p-3 font-mono text-black text-xs leading-relaxed">
+          <div className="xl:p-3 font-mono text-black text-xs leading-relaxed">
             <p>{">"} HACKSMC 2026</p>
             <br />
             <p>{"🎓"} Open to: Community College Students</p>

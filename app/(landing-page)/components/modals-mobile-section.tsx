@@ -2,19 +2,14 @@ import { BundyCampusMapsModal, ReadmeModal, SMCCampusModal } from "./modals";
 
 export function MobileModalsSection() {
   return (
-    <div className="sm:hidden block px-4 py-8 w-full">
-      <div className="gap-3 grid grid-cols-2 w-full">
+    <div className="xl:hidden flex flex-col items-center gap-3 px-4 py-8 w-full">
+      <div className="flex flex-row flex-wrap justify-center gap-3">
         <div className="flex flex-col justify-end">
-          <SMCCampusModal style={{ position: "static", width: "100%" }} />
+          <SMCCampusModal style={{ position: "relative" }} />
         </div>
-        <div className="flex flex-col">
-          <ReadmeModal style={{ position: "static", width: "100%" }} />
-        </div>
-
-        <div className="place-content-center grid col-span-2">
-          <BundyCampusMapsModal style={{ position: "static", width: "100%" }} />
-        </div>
+        <ReadmeModal style={{ position: "relative" }} />
       </div>
+      <BundyCampusMapsModal style={{ position: "relative" }} />
     </div>
   );
 }

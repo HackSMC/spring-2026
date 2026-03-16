@@ -67,7 +67,7 @@ export function FaqSection() {
   return (
     <div id="faq" className="z-10 relative w-full">
       {/* Modal only shown on sm+ screens */}
-      <div className="hidden sm:block">
+      <div className="hidden xl:block">
         <BundyCampusMapsModal style={{ top: 10, left: "2vw" }} />
       </div>
 

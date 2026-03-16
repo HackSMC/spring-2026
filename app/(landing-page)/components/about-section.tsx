@@ -125,7 +125,7 @@ export function AboutSection() {
       </div>
 
       {/* Modals: tablet (md) and up only */}
-      <div className="hidden md:block">
+      <div className="hidden xl:block">
         <SMCCampusModal style={{ top: "20%", left: "5vw" }} />
         <ReadmeModal style={{ bottom: -64, right: "3vw", zIndex: 10 }} />
       </div>
