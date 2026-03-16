@@ -1,10 +1,9 @@
 import { Win95Modal, Win95ModalContent } from "@/components/modal";
 import { Frame, Modal } from "@react95/core";
 import { Computer3, Explorer103, FileFind2, Notepad } from "@react95/icons";
-
 export function SMCCampusModal({ style }: { style?: React.CSSProperties }) {
   return (
-    <div style={{ position: "absolute", width: 250, ...style }}>
+    <div className="absolute w-[160px] sm:w-[250px]" style={style}>
       <Win95Modal
         title="SMC — Main Campus"
         icon={<FileFind2 variant="16x16_4" />}
@@ -15,13 +14,10 @@ export function SMCCampusModal({ style }: { style?: React.CSSProperties }) {
               <img
                 src="/smc.jpg"
                 alt="Santa Monica College"
+                className="block w-full h-20 sm:h-48 object-cover"
                 style={{
                   filter: "saturate(0.75) contrast(1.1) brightness(1.25)",
                   imageRendering: "pixelated",
-                  display: "block",
-                  width: "100%",
-                  height: 200,
-                  objectFit: "cover",
                 }}
               />
             </Frame>
@@ -61,13 +57,13 @@ export function BundyCampusMapsModal({
 
 export function ReadmeModal({ style }: { style?: React.CSSProperties }) {
   return (
-    <div style={{ position: "absolute", width: 255, ...style }}>
+    <div className="absolute w-[160px] sm:w-[255px]" style={style}>
       <Win95Modal
         title="readme.txt — Notepad"
         icon={<Notepad variant="16x16_4" />}
       >
         <Win95ModalContent style={{ backgroundColor: "white" }}>
-          <div className="xl:p-3 font-mono text-black text-xs leading-relaxed">
+          <div className="p-1.5 sm:p-3 font-mono text-[9px] text-black sm:text-xs leading-relaxed">
             <p>{">"} HACKSMC 2026</p>
             <br />
             <p>{"🎓"} Open to: Community College Students</p>
@@ -84,12 +80,7 @@ export function ReadmeModal({ style }: { style?: React.CSSProperties }) {
                 href="https://share.google/LlUEc3U0xgrRaVXmr"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  fontFamily: "monospace",
-                  color: "#000080",
-                  fontSize: 12,
-                  textDecoration: "underline",
-                }}
+                className="font-mono text-[#000080] text-[9px] sm:text-xs underline"
               >
                 Bundy Campus, SMC
               </a>
