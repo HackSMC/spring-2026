@@ -59,7 +59,7 @@ export default function AuthConfirm() {
           top: "auto",
         }}
       >
-        <Win95ModalContent bgColor="$material">
+        <Win95ModalContent>
           <div className="p-6 text-center">Confirming your account...</div>
         </Win95ModalContent>
       </Win95Modal>
