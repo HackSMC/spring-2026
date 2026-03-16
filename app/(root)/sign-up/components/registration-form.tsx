@@ -81,7 +81,7 @@ export function RegistrationForm() {
   if (state.needsConfirmation) {
     return (
       <Win95Modal
-        className="flex w-xl max-w-[calc(100vw-2rem)]"
+        className="w-xl max-w-[calc(100vw-2rem)]"
         style={{
           position: "relative",
           translate: "none",
@@ -112,6 +112,9 @@ export function RegistrationForm() {
                 <p>No email? Check your spam folder.</p>
               </div>
             </Fieldset>
+            <Link href="/" className="text-[#003c74] text-xs underline">
+              ←Back to home
+            </Link>
           </div>
         </Win95ModalContent>
       </Win95Modal>
@@ -120,7 +123,7 @@ export function RegistrationForm() {
 
   return (
     <Win95Modal
-      className="flex w-xl max-w-[calc(100vw-2rem)]"
+      className="w-xl max-w-[calc(100vw-2rem)]"
       style={{
         position: "relative",
         translate: "none",
@@ -137,7 +140,7 @@ export function RegistrationForm() {
           <div className="p-2">
             <Fieldset className="mb-4 p-2" legend="Create Account">
               <div className="p-1 text-xs leading-normal">
-                Enter your email and password below to create an account
+                Register your account to initialize the application process.
               </div>
             </Fieldset>
 
@@ -217,12 +220,17 @@ export function RegistrationForm() {
             </Fieldset>
 
             <div className="flex flex-wrap justify-between items-center gap-2 mt-3">
-              <Link
-                href="/sign-in"
-                className="text-[#003c74] text-xs underline"
-              >
-                Already have an account?
-              </Link>
+              <div className="flex flex-col gap-2">
+                <Link href="/" className="text-[#003c74] text-xs underline">
+                  ←Back to home
+                </Link>
+                <Link
+                  href="/sign-in"
+                  className="text-[#003c74] text-xs underline"
+                >
+                  Already have an account?
+                </Link>
+              </div>
 
               <form.Subscribe
                 selector={(s) => ({

@@ -51,7 +51,7 @@ export function LoginForm() {
 
   return (
     <Win95Modal
-      className="flex w-xl max-w-[calc(100vw-2rem)]"
+      className="w-xl max-w-[calc(100vw-2rem)]"
       style={{
         position: "relative",
         translate: "none",
@@ -68,7 +68,8 @@ export function LoginForm() {
           <div className="p-2">
             <Fieldset className="mb-4 p-2" legend="Welcome Back">
               <div className="p-1 text-xs leading-normal">
-                Enter your email and password to access your account
+                Enter your registered email address and password to access your
+                application profile.
               </div>
             </Fieldset>
             {confirmed && (
@@ -123,12 +124,17 @@ export function LoginForm() {
               </form.AppField>
             </Fieldset>
             <div className="flex flex-wrap justify-between items-center gap-2 mt-3">
-              <Link
-                href="/sign-up"
-                className="text-[#003c74] text-xs underline"
-              >
-                Don't have an account?
-              </Link>
+              <div className="flex flex-col gap-2">
+                <Link href="/" className="text-[#003c74] text-xs underline">
+                  ← Back to home
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="text-[#003c74] text-xs underline"
+                >
+                  Don't have an account?
+                </Link>
+              </div>
 
               <form.Subscribe
                 selector={(s) => ({

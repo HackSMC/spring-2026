@@ -83,7 +83,7 @@ export function HackerApplicationForm() {
 
   return (
     <Win95Modal
-      className="flex w-xl max-w-xl"
+      className="w-xl max-w-xl"
       style={{
         position: "relative",
         translate: "none",
