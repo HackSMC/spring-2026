@@ -45,7 +45,7 @@ export function BundyCampusMapsModal({
       >
         <Win95ModalContent style={{ padding: 0 }}>
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3307.1220991739583!2d-118.445574!3d34.0150767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bafe7f7c6edd%3A0x1506078475f24855!2sSanta%20Monica%20College%20Bundy%20Campus!5e1!3m2!1sen!2sus!4v1772952693827!5m2!1sen!2sus"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3307.1220991739583!2d-118.445574!3d34.0150767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bafe7f7c6edd%3A0x1506078475f24855!2sSanta%20Monica%20College%20Bundy%20Campus!5e1!3m2!1sen!2sus!4v1772952693827!5m2!1sen!2sus&gestureHandling=none&zoomControl=0"
             width="100%"
             height="200"
             style={{ border: 0, display: "block" }}

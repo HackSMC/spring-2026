@@ -44,11 +44,13 @@ export function NavBar() {
 
       {menuOpen && (
         <div
-          className="md:hidden z-[99] fixed"
+          className="md:hidden z-[99] fixed text-sm"
           style={{ top: "4rem", right: "1rem" }}
         >
           <List style={{ width: 120 }}>
-            <List.Item onClick={() => scrollTo("about")}>About</List.Item>
+            <List.Item className="" onClick={() => scrollTo("about")}>
+              About
+            </List.Item>
             <List.Divider />
             <List.Item onClick={() => scrollTo("faq")}>FAQ</List.Item>
             <List.Divider />
